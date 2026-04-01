@@ -204,38 +204,38 @@ POST   /api/spaces/invites/accept/            ← accept invite by token
 DELETE /api/spaces/{id}/invites/{invite_id}/  ← revoke an invite (owner or admin)
 ```
 
-### Categories (`/api/spaces/{space_id}/categories/`)
+### Categories (`/api/budgets/categories/`)
 ```
-GET    /api/spaces/{space_id}/categories/
-POST   /api/spaces/{space_id}/categories/
-PUT    /api/spaces/{space_id}/categories/{id}/
-DELETE /api/spaces/{space_id}/categories/{id}/
-```
-
-### Transactions (`/api/spaces/{space_id}/transactions/`)
-```
-GET    /api/spaces/{space_id}/transactions/    ← supports ?month=2026-03 and ?category={id}
-POST   /api/spaces/{space_id}/transactions/
-PUT    /api/spaces/{space_id}/transactions/{id}/
-DELETE /api/spaces/{space_id}/transactions/{id}/
+GET    /api/budgets/categories/?space_id=123
+POST   /api/budgets/categories/                    ← space_id in body
+PUT    /api/budgets/categories/{id}/
+DELETE /api/budgets/categories/{id}/
 ```
 
-### Recurring Transactions (`/api/spaces/{space_id}/recurring-transactions/`)
+### Transactions (`/api/budgets/transactions/`)
 ```
-GET    /api/spaces/{space_id}/recurring-transactions/
-POST   /api/spaces/{space_id}/recurring-transactions/
-PUT    /api/spaces/{space_id}/recurring-transactions/{id}/
-DELETE /api/spaces/{space_id}/recurring-transactions/{id}/
-```
-
-### Reports (`/api/spaces/{space_id}/reports/`)
-```
-GET    /api/spaces/{space_id}/reports/monthly-summary/?month=2026-03
-GET    /api/spaces/{space_id}/reports/weekly-summary/?week=2026-03-30
-GET    /api/spaces/{space_id}/reports/yearly-summary/?year=2026
+GET    /api/budgets/transactions/?space_id=123&month=2026-03&category_id=5
+POST   /api/budgets/transactions/                  ← space_id in body
+PUT    /api/budgets/transactions/{id}/
+DELETE /api/budgets/transactions/{id}/
 ```
 
-All three report endpoints return totals per category for the given period. `week` param is the start date of the week; the backend computes `[date, date + 6 days]`.
+### Recurring Transactions (`/api/budgets/recurring-transactions/`)
+```
+GET    /api/budgets/recurring-transactions/?space_id=123
+POST   /api/budgets/recurring-transactions/        ← space_id in body
+PUT    /api/budgets/recurring-transactions/{id}/
+DELETE /api/budgets/recurring-transactions/{id}/
+```
+
+### Reports (`/api/budgets/reports/`)
+```
+GET    /api/budgets/reports/monthly-summary/?space_id=123&month=2026-03
+GET    /api/budgets/reports/weekly-summary/?space_id=123&week=2026-03-30
+GET    /api/budgets/reports/yearly-summary/?space_id=123&year=2026
+```
+
+All three report endpoints return totals per category for the given period. `week` param is the start date of the week; the backend computes `[date, date + 6 days]`. For `PUT`/`DELETE` the space is inferred from the resource itself.
 
 ---
 
