@@ -53,7 +53,9 @@ class TransactionListCreateView(generics.ListCreateAPIView):
         if not space_id:
             raise ValidationError({"space_id": "This parameter is required."})
         space = get_space_for_user(space_id, self.request.user)
-        qs = Transaction.objects.filter(space=space)
+        qs = Transaction.objects.filter(space=space).select_related(
+            "category", "paid_by", "created_by"
+        )
 
         month = self.request.query_params.get("month")
         if month:
@@ -83,7 +85,7 @@ class TransactionDetailView(generics.RetrieveUpdateDestroyAPIView):
     def get_queryset(self):
         return Transaction.objects.filter(
             space__memberships__user=self.request.user
-        )
+        ).select_related("category", "paid_by", "created_by")
 
 
 class RecurringTransactionListCreateView(generics.ListCreateAPIView):

@@ -18,13 +18,17 @@ class TransactionSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ("id", "space", "created_by", "created_at")
 
-    def validate(self, attrs):
-        if attrs.get("category") and "space" in self.context:
-            if attrs["category"].space != self.context["space"]:
-                raise serializers.ValidationError(
-                    "Category does not belong to this space."
-                )
-        return attrs
+    def validate_category(self, category):
+        # For create: space is passed via context from perform_create
+        # For update: get the space from the existing instance
+        space = self.context.get("space")
+        if space is None and self.instance is not None:
+            space = self.instance.space
+        if space is not None and category.space != space:
+            raise serializers.ValidationError(
+                "Category does not belong to this space."
+            )
+        return category
 
 
 class RecurringTransactionSerializer(serializers.ModelSerializer):
