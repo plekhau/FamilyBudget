@@ -11,7 +11,9 @@ class SpaceListCreateView(generics.ListCreateAPIView):
     serializer_class = SpaceSerializer
 
     def get_queryset(self):
-        return Space.objects.filter(memberships__user=self.request.user)
+        return Space.objects.filter(
+            memberships__user=self.request.user
+        ).prefetch_related("memberships__user")
 
     def perform_create(self, serializer):
         space = serializer.save(created_by=self.request.user)
@@ -26,7 +28,9 @@ class SpaceDetailView(generics.RetrieveDestroyAPIView):
     serializer_class = SpaceSerializer
 
     def get_queryset(self):
-        return Space.objects.filter(memberships__user=self.request.user)
+        return Space.objects.filter(
+            memberships__user=self.request.user
+        ).prefetch_related("memberships__user")
 
     def destroy(self, request, *args, **kwargs):
         space = self.get_object()
@@ -44,10 +48,14 @@ class SpaceInviteCreateView(generics.CreateAPIView):
     serializer_class = SpaceInviteSerializer
 
     def perform_create(self, serializer):
-        space = Space.objects.get(
-            pk=self.kwargs["space_id"],
-            memberships__user=self.request.user,
-        )
+        from django.http import Http404
+        try:
+            space = Space.objects.get(
+                pk=self.kwargs["space_id"],
+                memberships__user=self.request.user,
+            )
+        except Space.DoesNotExist:
+            raise Http404
         serializer.save(space=space, invited_by=self.request.user)
 
 
@@ -84,18 +92,25 @@ class RevokeInviteView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def delete(self, request, space_id, invite_id):
+        membership = SpaceMembership.objects.filter(
+            user=request.user, space_id=space_id
+        ).first()
+        if not membership:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        if membership.role not in (SpaceMembership.Role.OWNER, SpaceMembership.Role.ADMIN):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
         try:
             invite = SpaceInvite.objects.get(
                 pk=invite_id,
                 space_id=space_id,
-                space__memberships__user=request.user,
+                status=SpaceInvite.Status.PENDING,
             )
         except SpaceInvite.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-        membership = SpaceMembership.objects.get(user=request.user, space_id=space_id)
-        if membership.role not in (SpaceMembership.Role.OWNER, SpaceMembership.Role.ADMIN):
-            return Response(status=status.HTTP_403_FORBIDDEN)
+            return Response(
+                {"detail": "Invite not found or not in pending state."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
 
         invite.status = SpaceInvite.Status.REVOKED
         invite.save()
