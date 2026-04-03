@@ -1,4 +1,4 @@
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 
 
@@ -18,11 +18,10 @@ class UserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
 
-class User(AbstractBaseUser, PermissionsMixin):
+class User(AbstractUser):
+    username = None
     email = models.EmailField(unique=True)
     display_name = models.CharField(max_length=150)
-    is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     USERNAME_FIELD = "email"
