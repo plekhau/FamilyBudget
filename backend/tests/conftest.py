@@ -15,11 +15,6 @@ def auth_client(api_client, db):
         password="testpass123",
         display_name="Test User",
     )
-    response = api_client.post("/api/auth/token/", {
-        "email": "test@example.com",
-        "password": "testpass123",
-    })
-    token = response.data["access"]
-    api_client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
+    api_client.force_authenticate(user=user)
     api_client._user = user
     return api_client
