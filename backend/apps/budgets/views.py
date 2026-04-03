@@ -48,6 +48,17 @@ class CategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
 class TransactionListCreateView(generics.ListCreateAPIView):
     serializer_class = TransactionSerializer
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        space_id = self.request.data.get("space_id") or self.request.query_params.get("space_id")
+        if space_id:
+            try:
+                space = get_space_for_user(space_id, self.request.user)
+                context["space"] = space
+            except Exception:
+                pass  # validation errors handled in get_queryset/perform_create
+        return context
+
     def get_queryset(self):
         space_id = self.request.query_params.get("space_id")
         if not space_id:
