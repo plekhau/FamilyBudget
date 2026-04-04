@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from .models import Category, Transaction, RecurringTransaction
 from .serializers import CategorySerializer, TransactionSerializer, RecurringTransactionSerializer
 from apps.spaces.models import Space, SpaceMembership
+from . import reports as report_queries
 
 
 def get_space_for_user(space_id, user):
@@ -124,3 +125,28 @@ class RecurringTransactionDetailView(generics.RetrieveUpdateDestroyAPIView):
         return RecurringTransaction.objects.filter(
             space__memberships__user=self.request.user
         )
+
+
+class ReportView(APIView):
+    REPORT_TYPES = {
+        "monthly-summary": ("month", report_queries.monthly_summary),
+        "weekly-summary": ("week", report_queries.weekly_summary),
+        "yearly-summary": ("year", report_queries.yearly_summary),
+    }
+
+    def get(self, request, report_type):
+        if report_type not in self.REPORT_TYPES:
+            return Response({"detail": "Unknown report type."}, status=404)
+
+        space_id = request.query_params.get("space_id")
+        if not space_id:
+            raise ValidationError({"space_id": "This parameter is required."})
+        space = get_space_for_user(space_id, request.user)
+
+        param_name, fn = self.REPORT_TYPES[report_type]
+        param_value = request.query_params.get(param_name)
+        if not param_value:
+            raise ValidationError({param_name: "This parameter is required."})
+
+        data = fn(space, param_value)
+        return Response(data)

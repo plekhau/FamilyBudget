@@ -6,6 +6,7 @@ from .views import (
     TransactionDetailView,
     RecurringTransactionListCreateView,
     RecurringTransactionDetailView,
+    ReportView,
 )
 
 urlpatterns = [
@@ -15,4 +16,5 @@ urlpatterns = [
     path("transactions/<int:pk>/", TransactionDetailView.as_view(), name="transaction-detail"),
     path("recurring-transactions/", RecurringTransactionListCreateView.as_view(), name="recurring-list"),
     path("recurring-transactions/<int:pk>/", RecurringTransactionDetailView.as_view(), name="recurring-detail"),
+    path("reports/<str:report_type>/", ReportView.as_view(), name="reports"),
 ]
