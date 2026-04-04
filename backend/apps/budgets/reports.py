@@ -1,18 +1,19 @@
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 from django.db.models import Sum
 from .models import Transaction, Category
 
 
-def _summary(space, qs):
+def _summary(qs):
     """Aggregate Transaction queryset by category, return list of dicts."""
-    rows = (
+    rows = list(
         qs.values("category_id")
         .annotate(total=Sum("amount"))
         .order_by("category_id")
     )
+    category_ids = [row["category_id"] for row in rows]
     category_names = {
         c.id: {"name": c.name, "icon": c.icon}
-        for c in Category.objects.filter(space=space)
+        for c in Category.objects.filter(id__in=category_ids)
     }
     return [
         {
@@ -27,13 +28,13 @@ def _summary(space, qs):
 
 def monthly_summary(space, month_str):
     """month_str: 'YYYY-MM'"""
-    year, month = month_str.split("-")
+    dt = datetime.strptime(month_str, "%Y-%m")
     qs = Transaction.objects.filter(
         space=space,
-        date__year=int(year),
-        date__month=int(month),
+        date__year=dt.year,
+        date__month=dt.month,
     )
-    return _summary(space, qs)
+    return _summary(qs)
 
 
 def weekly_summary(space, week_str):
@@ -41,9 +42,9 @@ def weekly_summary(space, week_str):
     start = date.fromisoformat(week_str)
     end = start + timedelta(days=6)
     qs = Transaction.objects.filter(space=space, date__range=(start, end))
-    return _summary(space, qs)
+    return _summary(qs)
 
 
 def yearly_summary(space, year_str):
     qs = Transaction.objects.filter(space=space, date__year=int(year_str))
-    return _summary(space, qs)
+    return _summary(qs)

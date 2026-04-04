@@ -66,3 +66,31 @@ class TestReports:
             f"/api/budgets/reports/monthly-summary/?space_id={other_space.data['id']}&month=2026-03"
         )
         assert response.status_code == 403
+
+    def test_monthly_bad_format_returns_400(self, auth_client, seeded_space):
+        space_id, _ = seeded_space
+        response = auth_client.get(
+            f"/api/budgets/reports/monthly-summary/?space_id={space_id}&month=not-a-date"
+        )
+        assert response.status_code == 400
+
+    def test_weekly_bad_format_returns_400(self, auth_client, seeded_space):
+        space_id, _ = seeded_space
+        response = auth_client.get(
+            f"/api/budgets/reports/weekly-summary/?space_id={space_id}&week=not-a-date"
+        )
+        assert response.status_code == 400
+
+    def test_yearly_bad_format_returns_400(self, auth_client, seeded_space):
+        space_id, _ = seeded_space
+        response = auth_client.get(
+            f"/api/budgets/reports/yearly-summary/?space_id={space_id}&year=not-a-number"
+        )
+        assert response.status_code == 400
+
+    def test_unknown_report_type_returns_404(self, auth_client, seeded_space):
+        space_id, _ = seeded_space
+        response = auth_client.get(
+            f"/api/budgets/reports/nonexistent/?space_id={space_id}&month=2026-03"
+        )
+        assert response.status_code == 404

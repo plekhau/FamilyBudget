@@ -1,5 +1,5 @@
 from rest_framework import generics, status
-from rest_framework.exceptions import ValidationError, PermissionDenied
+from rest_framework.exceptions import ValidationError, PermissionDenied, NotFound
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import Category, Transaction, RecurringTransaction
@@ -136,7 +136,7 @@ class ReportView(APIView):
 
     def get(self, request, report_type):
         if report_type not in self.REPORT_TYPES:
-            return Response({"detail": "Unknown report type."}, status=404)
+            raise NotFound("Unknown report type.")
 
         space_id = request.query_params.get("space_id")
         if not space_id:
@@ -148,5 +148,8 @@ class ReportView(APIView):
         if not param_value:
             raise ValidationError({param_name: "This parameter is required."})
 
-        data = fn(space, param_value)
+        try:
+            data = fn(space, param_value)
+        except (ValueError, TypeError) as exc:
+            raise ValidationError({param_name: str(exc)})
         return Response(data)
