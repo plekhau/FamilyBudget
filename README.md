@@ -1,6 +1,11 @@
 # FamilyBudget
 Pet project for full-stack experience
 
+## Stack
+
+- **Backend** — Django REST Framework, JWT auth, SQLite (dev)
+- **Frontend** — React 19, Vite 6, TypeScript, Tailwind CSS v4, shadcn/ui, TanStack Query, Zustand
+
 ## Backend
 
 ### Setup
@@ -36,5 +41,29 @@ uv run python manage.py runserver --settings=config.settings.local
 
 ```bash
 uv run pytest
+```
+
+## Frontend
+
+### Setup
+
+```bash
+cd frontend
+pnpm install
+```
+
+### Run
+
+```bash
+pnpm dev
+```
+
+Starts at `http://localhost:5173`. Requires the backend running on `http://localhost:8000`.
+
+### Tests
+
+```bash
+pnpm test          # watch mode
+pnpm test --run    # single run
 ```
 
