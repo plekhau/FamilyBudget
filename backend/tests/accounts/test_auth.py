@@ -4,6 +4,7 @@ import pytest
 @pytest.mark.django_db
 class TestRegistration:
     def test_register_success(self, api_client):
+        """Registering with valid data returns 201 and omits the password from the response."""
         response = api_client.post("/api/auth/register/", {
             "email": "alice@example.com",
             "password": "strongpass123",
@@ -14,6 +15,7 @@ class TestRegistration:
         assert "password" not in response.data
 
     def test_register_duplicate_email(self, api_client):
+        """Registering with an already-taken email returns 400."""
         api_client.post("/api/auth/register/", {
             "email": "alice@example.com",
             "password": "strongpass123",
@@ -27,6 +29,7 @@ class TestRegistration:
         assert response.status_code == 400
 
     def test_register_missing_email(self, api_client):
+        """Registering without an email field returns 400."""
         response = api_client.post("/api/auth/register/", {
             "password": "strongpass123",
             "display_name": "Alice",
@@ -37,6 +40,7 @@ class TestRegistration:
 @pytest.mark.django_db
 class TestTokenAuth:
     def test_login_returns_tokens(self, api_client):
+        """Logging in with correct credentials returns both access and refresh tokens."""
         api_client.post("/api/auth/register/", {
             "email": "bob@example.com",
             "password": "strongpass123",
@@ -51,6 +55,7 @@ class TestTokenAuth:
         assert "refresh" in response.data
 
     def test_login_wrong_password(self, api_client):
+        """Logging in with an incorrect password returns 401."""
         api_client.post("/api/auth/register/", {
             "email": "bob@example.com",
             "password": "strongpass123",
@@ -63,6 +68,7 @@ class TestTokenAuth:
         assert response.status_code == 401
 
     def test_logout_blacklists_refresh(self, api_client):
+        """Blacklisting a refresh token prevents it from being used to obtain a new access token."""
         api_client.post("/api/auth/register/", {
             "email": "bob@example.com",
             "password": "strongpass123",

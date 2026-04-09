@@ -15,6 +15,7 @@ def space_and_category(auth_client):
 @pytest.mark.django_db
 class TestTransactionAPI:
     def test_create_transaction(self, auth_client, space_and_category):
+        """Creating a transaction with valid data returns 201, the correct amount, and sets created_by automatically."""
         space_id, category_id = space_and_category
         response = auth_client.post("/api/budgets/transactions/", {
             "space_id": space_id,
@@ -29,6 +30,7 @@ class TestTransactionAPI:
         assert response.data["created_by"] == auth_client._user.id
 
     def test_list_transactions_filtered_by_month(self, auth_client, space_and_category):
+        """The month filter returns only transactions whose date falls within the specified month."""
         space_id, category_id = space_and_category
         user_id = auth_client._user.id
         auth_client.post("/api/budgets/transactions/", {
@@ -47,6 +49,7 @@ class TestTransactionAPI:
         assert response.data[0]["amount"] == "10.00"
 
     def test_list_transactions_filtered_by_category(self, auth_client, space_and_category):
+        """The category_id filter returns only transactions belonging to that category."""
         space_id, category_id = space_and_category
         user_id = auth_client._user.id
         auth_client.post("/api/budgets/transactions/", {
@@ -60,6 +63,7 @@ class TestTransactionAPI:
         assert all(t["category"] == category_id for t in response.data)
 
     def test_update_transaction(self, auth_client, space_and_category):
+        """Updating a transaction via PUT replaces its amount and returns the updated data."""
         space_id, category_id = space_and_category
         user_id = auth_client._user.id
         create = auth_client.post("/api/budgets/transactions/", {
@@ -77,6 +81,7 @@ class TestTransactionAPI:
         assert response.data["amount"] == "99.00"
 
     def test_delete_transaction(self, auth_client, space_and_category):
+        """Deleting a transaction returns 204 with no content."""
         space_id, category_id = space_and_category
         user_id = auth_client._user.id
         create = auth_client.post("/api/budgets/transactions/", {

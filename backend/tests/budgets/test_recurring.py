@@ -15,6 +15,7 @@ def space_and_category(auth_client):
 @pytest.mark.django_db
 class TestRecurringTransactionAPI:
     def test_create_recurring(self, auth_client, space_and_category):
+        """Creating a recurring transaction with valid data returns 201 and the correct description."""
         space_id, category_id = space_and_category
         response = auth_client.post("/api/budgets/recurring-transactions/", {
             "space_id": space_id,
@@ -30,6 +31,7 @@ class TestRecurringTransactionAPI:
         assert response.data["description"] == "Monthly Rent"
 
     def test_list_recurring(self, auth_client, space_and_category):
+        """Listing recurring transactions for a space returns only that space's records."""
         space_id, category_id = space_and_category
         auth_client.post("/api/budgets/recurring-transactions/", {
             "space_id": space_id, "category": category_id,
@@ -42,6 +44,7 @@ class TestRecurringTransactionAPI:
         assert len(response.data) == 1
 
     def test_deactivate_recurring(self, auth_client, space_and_category):
+        """Updating a recurring transaction's is_active to False marks it as inactive."""
         space_id, category_id = space_and_category
         create = auth_client.post("/api/budgets/recurring-transactions/", {
             "space_id": space_id, "category": category_id,

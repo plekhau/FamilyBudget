@@ -6,6 +6,7 @@ from apps.budgets.default_categories import DEFAULT_CATEGORIES
 
 @pytest.mark.django_db
 def test_default_categories_created_on_space_creation(auth_client):
+    """Creating a space automatically creates the full set of default categories via post_save signal."""
     response = auth_client.post("/api/spaces/", {"name": "Signal Test Space"})
     space_id = response.data["id"]
     categories = Category.objects.filter(space_id=space_id)
@@ -17,6 +18,7 @@ def test_default_categories_created_on_space_creation(auth_client):
 
 @pytest.mark.django_db
 def test_default_categories_have_correct_is_income(auth_client):
+    """Default categories are created with the correct is_income flag matching the DEFAULT_CATEGORIES definition."""
     response = auth_client.post("/api/spaces/", {"name": "Income Test Space"})
     space_id = response.data["id"]
     income_cats = Category.objects.filter(space_id=space_id, is_income=True)

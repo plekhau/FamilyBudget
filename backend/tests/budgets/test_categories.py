@@ -1,5 +1,6 @@
 # tests/budgets/test_categories.py
 import pytest
+from apps.accounts.models import User
 
 
 @pytest.fixture
@@ -12,15 +13,18 @@ def space_id(auth_client):
 @pytest.mark.django_db
 class TestCategoryAPI:
     def test_list_categories_for_space(self, auth_client, space_id):
+        """Listing categories for a space returns the default categories created on space creation."""
         response = auth_client.get(f"/api/budgets/categories/?space_id={space_id}")
         assert response.status_code == 200
         assert len(response.data) == 11  # default categories
 
     def test_list_requires_space_id(self, auth_client):
+        """Listing categories without a space_id query param returns 400."""
         response = auth_client.get("/api/budgets/categories/")
         assert response.status_code == 400
 
     def test_create_category(self, auth_client, space_id):
+        """Creating a category with valid data returns 201 and the created category."""
         response = auth_client.post("/api/budgets/categories/", {
             "space_id": space_id,
             "name": "Piano Lessons",
@@ -31,6 +35,7 @@ class TestCategoryAPI:
         assert response.data["name"] == "Piano Lessons"
 
     def test_update_category(self, auth_client, space_id):
+        """Updating a category via PUT replaces its fields and returns the updated data."""
         list_response = auth_client.get(f"/api/budgets/categories/?space_id={space_id}")
         cat_id = list_response.data[0]["id"]
         response = auth_client.put(f"/api/budgets/categories/{cat_id}/", {
@@ -42,13 +47,14 @@ class TestCategoryAPI:
         assert response.data["name"] == "Renamed"
 
     def test_delete_category(self, auth_client, space_id):
+        """Deleting a category returns 204 with no content."""
         list_response = auth_client.get(f"/api/budgets/categories/?space_id={space_id}")
         cat_id = list_response.data[0]["id"]
         response = auth_client.delete(f"/api/budgets/categories/{cat_id}/")
         assert response.status_code == 204
 
     def test_cannot_access_other_space_categories(self, auth_client, api_client):
-        from apps.accounts.models import User
+        """A user cannot list categories belonging to a space they are not a member of."""
         other_user = User.objects.create_user(
             email="other2@example.com",
             password="testpass123",
