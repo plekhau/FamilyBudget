@@ -12,6 +12,7 @@ class Category(models.Model):
 
     class Meta:
         unique_together = ("space", "name")
+        verbose_name_plural = "Categories"
 
     def __str__(self):
         return f"{self.icon} {self.name}"
