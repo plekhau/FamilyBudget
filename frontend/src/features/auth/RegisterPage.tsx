@@ -5,13 +5,7 @@ import { Link } from 'react-router'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useRegister } from '@/hooks/useAuth'
 
 const schema = z
@@ -40,7 +34,7 @@ export function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+    <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">FamilyBudget</CardTitle>
@@ -51,57 +45,31 @@ export function RegisterPage() {
             <div className="space-y-1">
               <Label htmlFor="display_name">Display Name</Label>
               <Input id="display_name" placeholder="Alex Smith" {...register('display_name')} />
-              {errors.display_name && (
-                <p className="text-sm text-destructive">{errors.display_name.message}</p>
-              )}
+              {errors.display_name && <p className="text-sm text-destructive">{errors.display_name.message}</p>}
             </div>
             <div className="space-y-1">
               <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                {...register('email')}
-                noValidate
-              />
-              {errors.email && (
-                <p className="text-sm text-destructive">{errors.email.message}</p>
-              )}
+              <Input id="email" type="email" placeholder="you@example.com" {...register('email')} noValidate />
+              {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
             </div>
             <div className="space-y-1">
               <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                {...register('password')}
-              />
-              {errors.password && (
-                <p className="text-sm text-destructive">{errors.password.message}</p>
-              )}
+              <Input id="password" type="password" placeholder="••••••••" {...register('password')} />
+              {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
             </div>
             <div className="space-y-1">
               <Label htmlFor="confirm_password">Confirm Password</Label>
-              <Input
-                id="confirm_password"
-                type="password"
-                placeholder="••••••••"
-                {...register('confirm_password')}
-              />
-              {errors.confirm_password && (
-                <p className="text-sm text-destructive">{errors.confirm_password.message}</p>
-              )}
+              <Input id="confirm_password" type="password" placeholder="••••••••" {...register('confirm_password')} />
+              {errors.confirm_password && <p className="text-sm text-destructive">{errors.confirm_password.message}</p>}
             </div>
             {registerMutation.isError && (
-              <p className="text-sm text-destructive">
-                Registration failed. Please try again.
-              </p>
+              <p className="text-sm text-destructive">Registration failed. Please try again.</p>
             )}
             <Button type="submit" className="w-full" disabled={registerMutation.isPending}>
               {registerMutation.isPending ? 'Creating account…' : 'Create Account'}
             </Button>
           </form>
-          <p className="text-center text-sm text-muted-foreground mt-4">
+          <p className="mt-4 text-center text-sm text-muted-foreground">
             Already have an account?{' '}
             <Link to="/login" className="text-primary hover:underline">
               Sign in

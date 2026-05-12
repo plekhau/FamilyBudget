@@ -16,7 +16,7 @@ api.interceptors.request.use((config) => {
 
 // On 401: attempt silent token refresh, then retry original request
 let isRefreshing = false
-let pending: Array<(token: string) => void> = []
+let pending: ((token: string) => void)[] = []
 
 api.interceptors.response.use(
   (response) => response,
@@ -47,10 +47,9 @@ api.interceptors.response.use(
     }
 
     try {
-      const { data } = await axios.post<{ access: string }>(
-        `${BASE_URL}/api/auth/token/refresh/`,
-        { refresh: refreshToken }
-      )
+      const { data } = await axios.post<{ access: string }>(`${BASE_URL}/api/auth/token/refresh/`, {
+        refresh: refreshToken,
+      })
       setTokens(data.access, refreshToken)
       pending.forEach((cb) => cb(data.access))
       pending = []

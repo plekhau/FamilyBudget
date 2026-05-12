@@ -25,9 +25,7 @@ function renderSettings() {
 }
 
 describe('SettingsPage', () => {
-  afterEach(() =>
-    useAuthStore.setState({ user: null, accessToken: null, refreshToken: null })
-  )
+  afterEach(() => useAuthStore.setState({ user: null, accessToken: null, refreshToken: null }))
 
   it('displays the user email (read-only)', async () => {
     renderSettings()

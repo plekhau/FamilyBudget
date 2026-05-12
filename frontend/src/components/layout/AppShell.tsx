@@ -9,9 +9,9 @@ export function AppShell() {
   const [drawerOpen, setDrawerOpen] = useState(false)
 
   return (
-    <div className="flex h-screen bg-background text-foreground overflow-hidden">
+    <div className="flex h-screen overflow-hidden bg-background text-foreground">
       {/* Desktop sidebar: always visible at md+ */}
-      <div className="hidden md:flex flex-shrink-0">
+      <div className="hidden flex-shrink-0 md:flex">
         <PrimaryRail />
         <ContextPanel />
       </div>
@@ -19,17 +19,17 @@ export function AppShell() {
       {/* Mobile drawer */}
       <MobileDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
 
-      <div className="flex flex-col flex-1 min-w-0">
+      <div className="flex min-w-0 flex-1 flex-col">
         {/* Mobile top bar */}
-        <header className="md:hidden flex items-center h-12 px-4 border-b border-border bg-background shrink-0">
+        <header className="flex h-12 shrink-0 items-center border-b border-border bg-background px-4 md:hidden">
           <button
             onClick={() => setDrawerOpen(true)}
             aria-label="Open navigation menu"
             className="text-muted-foreground hover:text-foreground"
           >
-            <Menu className="w-5 h-5" />
+            <Menu className="h-5 w-5" />
           </button>
-          <span className="ml-3 font-bold text-sm">FamilyBudget</span>
+          <span className="ml-3 text-sm font-bold">FamilyBudget</span>
         </header>
 
         {/* Page content */}

@@ -15,7 +15,7 @@ const profileSchema = z.object({
 })
 type ProfileData = z.infer<typeof profileSchema>
 
-const THEME_OPTIONS: Array<{ value: Theme; label: string }> = [
+const THEME_OPTIONS: { value: Theme; label: string }[] = [
   { value: 'light', label: 'Light' },
   { value: 'system', label: 'System' },
   { value: 'dark', label: 'Dark' },
@@ -43,7 +43,7 @@ export function SettingsPage() {
   const initials = displayName[0]?.toUpperCase() ?? '?'
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="mx-auto max-w-2xl space-y-6">
       <div>
         <h1 className="text-xl font-bold">Settings</h1>
         <p className="text-sm text-muted-foreground">Manage your profile and preferences</p>
@@ -52,31 +52,25 @@ export function SettingsPage() {
       {/* Profile */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+          <CardTitle className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
             Profile
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary font-bold text-primary-foreground">
               {initials}
             </div>
             <div>
-              <p className="font-medium text-sm">{displayName}</p>
+              <p className="text-sm font-medium">{displayName}</p>
               <p className="text-xs text-muted-foreground">{email}</p>
             </div>
           </div>
-          <form
-            onSubmit={handleSubmit((d) => updateProfile.mutate(d))}
-            className="space-y-3"
-            noValidate
-          >
+          <form onSubmit={handleSubmit((d) => updateProfile.mutate(d))} className="space-y-3" noValidate>
             <div className="space-y-1">
               <Label htmlFor="display_name">Display Name</Label>
               <Input id="display_name" {...register('display_name')} />
-              {errors.display_name && (
-                <p className="text-sm text-destructive">{errors.display_name.message}</p>
-              )}
+              {errors.display_name && <p className="text-sm text-destructive">{errors.display_name.message}</p>}
             </div>
             <div className="space-y-1">
               <Label htmlFor="email">Email</Label>
@@ -96,7 +90,7 @@ export function SettingsPage() {
       {/* Appearance */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+          <CardTitle className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
             Appearance
           </CardTitle>
         </CardHeader>
@@ -109,9 +103,9 @@ export function SettingsPage() {
                 onClick={() => setTheme(value)}
                 aria-pressed={theme === value}
                 className={cn(
-                  'px-3 py-1.5 rounded-md text-sm border transition-colors',
+                  'rounded-md border px-3 py-1.5 text-sm transition-colors',
                   theme === value
-                    ? 'bg-primary text-primary-foreground border-primary'
+                    ? 'border-primary bg-primary text-primary-foreground'
                     : 'border-border text-muted-foreground hover:bg-accent hover:text-accent-foreground'
                 )}
               >
@@ -125,16 +119,12 @@ export function SettingsPage() {
       {/* Account */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+          <CardTitle className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
             Account
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <Button
-            variant="destructive"
-            onClick={() => logout.mutate()}
-            disabled={logout.isPending}
-          >
+          <Button variant="destructive" onClick={() => logout.mutate()} disabled={logout.isPending}>
             {logout.isPending ? 'Signing out…' : 'Sign Out'}
           </Button>
         </CardContent>

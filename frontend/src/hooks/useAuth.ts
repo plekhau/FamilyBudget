@@ -20,9 +20,7 @@ export function useLogin() {
 
   return useMutation({
     mutationFn: (data: LoginData) =>
-      api
-        .post<{ access: string; refresh: string }>('/api/auth/token/', data)
-        .then((r) => r.data),
+      api.post<{ access: string; refresh: string }>('/api/auth/token/', data).then((r) => r.data),
     onSuccess: async (tokens) => {
       setTokens(tokens.access, tokens.refresh)
       const { data: user } = await api.get<AuthUser>('/api/auth/me/')
@@ -36,8 +34,7 @@ export function useRegister() {
   const navigate = useNavigate()
 
   return useMutation({
-    mutationFn: (data: RegisterData) =>
-      api.post('/api/auth/register/', data).then((r) => r.data),
+    mutationFn: (data: RegisterData) => api.post('/api/auth/register/', data).then((r) => r.data),
     onSuccess: () => {
       navigate('/login')
     },
@@ -74,8 +71,7 @@ export function useUpdateProfile() {
   const qc = useQueryClient()
 
   return useMutation({
-    mutationFn: (data: { display_name: string }) =>
-      api.patch<AuthUser>('/api/auth/me/', data).then((r) => r.data),
+    mutationFn: (data: { display_name: string }) => api.patch<AuthUser>('/api/auth/me/', data).then((r) => r.data),
     onSuccess: (user) => {
       setUser(user)
       qc.setQueryData(['me'], user)

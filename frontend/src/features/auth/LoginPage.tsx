@@ -5,13 +5,7 @@ import { Link } from 'react-router'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useLogin } from '@/hooks/useAuth'
 
 const schema = z.object({
@@ -29,7 +23,7 @@ export function LoginPage() {
   const login = useLogin()
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+    <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">FamilyBudget</CardTitle>
@@ -39,38 +33,20 @@ export function LoginPage() {
           <form onSubmit={handleSubmit((d) => login.mutate(d))} className="space-y-4" noValidate>
             <div className="space-y-1">
               <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                {...register('email')}
-              />
-              {errors.email && (
-                <p className="text-sm text-destructive">{errors.email.message}</p>
-              )}
+              <Input id="email" type="email" placeholder="you@example.com" {...register('email')} />
+              {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
             </div>
             <div className="space-y-1">
               <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                {...register('password')}
-              />
-              {errors.password && (
-                <p className="text-sm text-destructive">{errors.password.message}</p>
-              )}
+              <Input id="password" type="password" placeholder="••••••••" {...register('password')} />
+              {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
             </div>
-            {login.isError && (
-              <p className="text-sm text-destructive">
-                Invalid credentials. Please try again.
-              </p>
-            )}
+            {login.isError && <p className="text-sm text-destructive">Invalid credentials. Please try again.</p>}
             <Button type="submit" className="w-full" disabled={login.isPending}>
               {login.isPending ? 'Signing in…' : 'Sign In'}
             </Button>
           </form>
-          <p className="text-center text-sm text-muted-foreground mt-4">
+          <p className="mt-4 text-center text-sm text-muted-foreground">
             Don&apos;t have an account?{' '}
             <Link to="/register" className="text-primary hover:underline">
               Register
