@@ -57,7 +57,21 @@ pnpm test
 
 # Run tests (single run)
 pnpm test --run
+
+# Lint (check only)
+pnpm lint
+
+# Lint and auto-fix
+pnpm lint:fix
+
+# Format with Prettier
+pnpm format
+
+# Check formatting without writing
+pnpm format:check
 ```
+
+**Before committing frontend changes:** run `pnpm lint:fix && pnpm format` from `frontend/` to auto-fix any issues. The pre-commit hook (husky + lint-staged) will also run these on staged files, but fixing upfront avoids surprises.
 
 ## Architecture
 
