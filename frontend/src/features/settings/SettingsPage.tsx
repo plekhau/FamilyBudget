@@ -1,10 +1,12 @@
 import { useForm } from 'react-hook-form'
 import { standardSchemaResolver as zodResolver } from '@hookform/resolvers/standard-schema'
 import { z } from 'zod'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { AvatarInitials } from '@/components/ui/avatar-initials'
 import { useMe, useUpdateProfile, useLogout } from '@/hooks/useAuth'
 import { useThemeStore, type Theme } from '@/store/themeStore'
 import { useAuthStore } from '@/store/authStore'
@@ -40,7 +42,12 @@ export function SettingsPage() {
     values: { display_name: displayName },
   })
 
-  const initials = displayName[0]?.toUpperCase() ?? '?'
+  const onSubmit = (d: ProfileData) => {
+    updateProfile.mutate(d, {
+      onSuccess: () => toast.success('Saved successfully'),
+      onError: () => toast.error('Failed to save. Please try again.'),
+    })
+  }
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
@@ -56,30 +63,25 @@ export function SettingsPage() {
             Profile
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-5">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary font-bold text-primary-foreground">
-              {initials}
-            </div>
+            <AvatarInitials name={displayName} size="md" />
             <div>
               <p className="text-sm font-medium">{displayName}</p>
               <p className="text-xs text-muted-foreground">{email}</p>
             </div>
           </div>
-          <form onSubmit={handleSubmit((d) => updateProfile.mutate(d))} className="space-y-3" noValidate>
-            <div className="space-y-1">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+            <div className="space-y-2">
               <Label htmlFor="display_name">Display Name</Label>
               <Input id="display_name" {...register('display_name')} />
               {errors.display_name && <p className="text-sm text-destructive">{errors.display_name.message}</p>}
             </div>
-            <div className="space-y-1">
+            <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input id="email" value={email} disabled readOnly />
               <p className="text-xs text-muted-foreground">Email cannot be changed</p>
             </div>
-            {updateProfile.isSuccess && (
-              <p className="text-sm text-green-600 dark:text-green-400">Saved successfully</p>
-            )}
             <Button type="submit" disabled={updateProfile.isPending}>
               {updateProfile.isPending ? 'Saving…' : 'Save Changes'}
             </Button>

@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { Toaster } from 'sonner'
 import { SettingsPage } from '../SettingsPage'
 import { useAuthStore } from '@/store/authStore'
 
@@ -19,6 +20,7 @@ function renderSettings() {
     <QueryClientProvider client={client}>
       <MemoryRouter>
         <SettingsPage />
+        <Toaster />
       </MemoryRouter>
     </QueryClientProvider>
   )
