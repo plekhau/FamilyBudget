@@ -3,19 +3,34 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
+import { AvatarInitials } from '@/components/ui/avatar-initials'
+import { cn } from '@/lib/utils'
 import { useSpaces, useCreateInvite, useDeleteSpace, type Space, type SpaceMember } from '@/hooks/useSpaces'
 import { useSpaceStore } from '@/store/spaceStore'
 import { useAuthStore } from '@/store/authStore'
-import { cn } from '@/lib/utils'
 import { CreateSpaceModal } from './CreateSpaceModal'
+import { Check } from 'lucide-react'
+
+function RoleBadge({ role }: { role: string }) {
+  return (
+    <span
+      className={cn(
+        'rounded px-1.5 py-0.5 text-xs font-medium',
+        role === 'owner' && 'bg-primary/10 text-primary',
+        role === 'admin' && 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+        role === 'member' && 'bg-muted text-muted-foreground'
+      )}
+    >
+      {role}
+    </span>
+  )
+}
 
 function MemberRow({ member, currentUserId }: { member: SpaceMember; currentUserId: number }) {
-  const initials = member.user.display_name[0]?.toUpperCase() ?? '?'
   return (
-    <div className="flex items-center gap-3">
-      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-        {initials}
-      </div>
+    <div className="flex items-center gap-3 py-2.5">
+      <AvatarInitials name={member.user.display_name} />
       <div className="flex-1">
         <p className="text-sm font-medium">
           {member.user.display_name}
@@ -23,22 +38,14 @@ function MemberRow({ member, currentUserId }: { member: SpaceMember; currentUser
         </p>
         <p className="text-xs text-muted-foreground">{member.user.email}</p>
       </div>
-      <span
-        className={cn(
-          'rounded px-1.5 py-0.5 text-xs font-medium',
-          member.role === 'owner' && 'bg-primary/10 text-primary',
-          member.role === 'admin' && 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-          member.role === 'member' && 'bg-muted text-muted-foreground'
-        )}
-      >
-        {member.role}
-      </span>
+      <RoleBadge role={member.role} />
     </div>
   )
 }
 
 function InviteCard({ spaceId }: { spaceId: number }) {
   const [inviteUrl, setInviteUrl] = useState<string | null>(null)
+  const [copied, setCopied] = useState(false)
   const createInvite = useCreateInvite(spaceId)
 
   const handleGenerate = () => {
@@ -47,6 +54,13 @@ function InviteCard({ spaceId }: { spaceId: number }) {
         setInviteUrl(`${window.location.origin}/invite?token=${data.token}`)
       },
     })
+  }
+
+  const handleCopy = () => {
+    if (!inviteUrl) return
+    void navigator.clipboard.writeText(inviteUrl)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
   }
 
   return (
@@ -61,18 +75,19 @@ function InviteCard({ spaceId }: { spaceId: number }) {
           {createInvite.isPending ? 'Generating…' : 'Generate Link'}
         </Button>
         {inviteUrl && (
-          <div className="space-y-1">
+          <div className="space-y-2">
             <Label>Invite link</Label>
             <div className="flex gap-2">
               <Input value={inviteUrl} readOnly />
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => {
-                  void navigator.clipboard.writeText(inviteUrl)
-                }}
-              >
-                Copy
+              <Button type="button" variant="outline" onClick={handleCopy}>
+                {copied ? (
+                  <span className="flex items-center gap-1">
+                    <Check className="h-4 w-4" />
+                    Copied!
+                  </span>
+                ) : (
+                  'Copy'
+                )}
               </Button>
             </div>
             <p className="text-xs text-muted-foreground">This link expires in 7 days.</p>
@@ -145,13 +160,12 @@ function DangerZoneCard({ space }: { space: Space }) {
 }
 
 export function SpacesPage() {
-  const { data: spaces = [] } = useSpaces()
+  const { data: spaces = [], isLoading } = useSpaces()
   const selectedSpaceId = useSpaceStore((s) => s.selectedSpaceId)
   const setSelectedSpaceId = useSpaceStore((s) => s.setSelectedSpaceId)
   const currentUser = useAuthStore((s) => s.user)
   const [modalOpen, setModalOpen] = useState(false)
 
-  // Auto-select first space if none selected or selected space no longer accessible
   useEffect(() => {
     if (spaces.length === 0) {
       setSelectedSpaceId(null)
@@ -160,6 +174,16 @@ export function SpacesPage() {
     const valid = spaces.find((s) => s.id === selectedSpaceId)
     if (!valid) setSelectedSpaceId(spaces[0].id)
   }, [spaces, selectedSpaceId, setSelectedSpaceId])
+
+  if (isLoading) {
+    return (
+      <div className="mx-auto max-w-2xl space-y-6" data-testid="spaces-loading">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-48 w-full rounded-xl" />
+        <Skeleton className="h-32 w-full rounded-xl" />
+      </div>
+    )
+  }
 
   const selectedSpace = spaces.find((s) => s.id === selectedSpaceId) ?? null
   const currentMembership = selectedSpace?.members.find((m) => m.user.id === currentUser?.id)
@@ -212,7 +236,7 @@ export function SpacesPage() {
                 Members · {selectedSpace.members.length}
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="divide-y divide-border">
               {selectedSpace.members.map((member) => (
                 <MemberRow key={member.id} member={member} currentUserId={currentUser?.id ?? -1} />
               ))}

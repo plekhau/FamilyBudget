@@ -2,7 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { http, HttpResponse } from 'msw'
+import { http, HttpResponse, delay } from 'msw'
 import { server } from '@/mocks/server'
 import { SpacesPage } from '../SpacesPage'
 import { useAuthStore } from '@/store/authStore'
@@ -182,5 +182,16 @@ describe('SpacesPage', () => {
     renderSpaces()
     await userEvent.click(await screen.findByRole('button', { name: /delete space/i }))
     expect(await screen.findByPlaceholderText(/type.*home budget/i)).toBeInTheDocument()
+  })
+
+  it('shows a loading skeleton while spaces are fetched', async () => {
+    server.use(
+      http.get(`${BASE}/api/spaces/`, async () => {
+        await delay('infinite')
+        return HttpResponse.json([])
+      })
+    )
+    renderSpaces()
+    expect(await screen.findByTestId('spaces-loading')).toBeInTheDocument()
   })
 })
