@@ -75,3 +75,14 @@ pnpm test          # watch mode
 pnpm test --run    # single run
 ```
 
+### Linting & Formatting
+
+```bash
+pnpm lint          # lint
+pnpm lint:fix      # lint + auto-fix
+pnpm format        # format src/ (Prettier + Tailwind class sorting)
+pnpm format:check  # CI check
+```
+
+Pre-commit hooks run automatically via husky + lint-staged on every commit.
+
