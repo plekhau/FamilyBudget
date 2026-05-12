@@ -41,23 +41,23 @@ export function RegisterPage() {
           <CardDescription>Create your account</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-            <div className="space-y-1">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+            <div className="space-y-2">
               <Label htmlFor="display_name">Display Name</Label>
               <Input id="display_name" placeholder="Alex Smith" {...register('display_name')} />
               {errors.display_name && <p className="text-sm text-destructive">{errors.display_name.message}</p>}
             </div>
-            <div className="space-y-1">
+            <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="you@example.com" {...register('email')} noValidate />
+              <Input id="email" type="email" placeholder="you@example.com" {...register('email')} />
               {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
             </div>
-            <div className="space-y-1">
+            <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <Input id="password" type="password" placeholder="••••••••" {...register('password')} />
               {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
             </div>
-            <div className="space-y-1">
+            <div className="space-y-2">
               <Label htmlFor="confirm_password">Confirm Password</Label>
               <Input id="confirm_password" type="password" placeholder="••••••••" {...register('confirm_password')} />
               {errors.confirm_password && <p className="text-sm text-destructive">{errors.confirm_password.message}</p>}
