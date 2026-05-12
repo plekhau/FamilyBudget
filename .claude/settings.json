@@ -12,6 +12,7 @@
       "Bash(pnpm dev*)",
       "Bash(pnpm build*)",
       "Bash(pnpm lint*)",
+      "Bash(pnpm format*)",
       "Bash(node -e *)",
       "Bash(curl -s http://localhost:*)"
     ],
