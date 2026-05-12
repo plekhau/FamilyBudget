@@ -232,9 +232,9 @@ export function SpacesPage() {
             </CardContent>
           </Card>
 
-          <InviteCard key={selectedSpace.id} spaceId={selectedSpace.id} />
+          <InviteCard key={`invite-${selectedSpace.id}`} spaceId={selectedSpace.id} />
 
-          {isOwner && <DangerZoneCard key={selectedSpace.id} space={selectedSpace} />}
+          {isOwner && <DangerZoneCard key={`danger-${selectedSpace.id}`} space={selectedSpace} />}
         </>
       ) : null}
 
