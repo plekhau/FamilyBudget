@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useNavigate } from 'react-router'
+import { useNavigate, useLocation } from 'react-router'
 import { api } from '@/lib/api'
 import { useAuthStore, type AuthUser } from '@/store/authStore'
 
@@ -17,6 +17,7 @@ interface RegisterData {
 export function useLogin() {
   const { setTokens, setUser } = useAuthStore()
   const navigate = useNavigate()
+  const location = useLocation()
 
   return useMutation({
     mutationFn: (data: LoginData) =>
@@ -25,7 +26,9 @@ export function useLogin() {
       setTokens(tokens.access, tokens.refresh)
       const { data: user } = await api.get<AuthUser>('/api/auth/me/')
       setUser(user)
-      navigate('/', { replace: true })
+      const params = new URLSearchParams(location.search)
+      const redirect = params.get('redirect')
+      navigate(redirect ?? '/', { replace: true })
     },
   })
 }
