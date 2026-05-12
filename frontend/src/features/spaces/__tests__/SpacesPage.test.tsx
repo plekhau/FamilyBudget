@@ -50,7 +50,7 @@ describe('SpacesPage', () => {
   it('does not show the space switcher when only one space', async () => {
     renderSpaces()
     await screen.findByText('Home Budget')
-    expect(screen.queryByRole('combobox')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /switch space/i })).not.toBeInTheDocument()
   })
 
   it('shows the space switcher when multiple spaces exist', async () => {
@@ -87,7 +87,7 @@ describe('SpacesPage', () => {
       )
     )
     renderSpaces()
-    expect(await screen.findByRole('combobox')).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: /switch space/i })).toBeInTheDocument()
   })
 
   it('switching spaces shows the new space and renders each section exactly once', async () => {
@@ -124,12 +124,13 @@ describe('SpacesPage', () => {
       )
     )
     renderSpaces()
-    await screen.findByRole('heading', { name: 'Home Budget' })
+    await screen.findByRole('button', { name: /switch space/i })
 
-    await userEvent.selectOptions(screen.getByRole('combobox'), '2')
+    await userEvent.click(screen.getByRole('button', { name: /switch space/i }))
+    await userEvent.click(await screen.findByRole('menuitem', { name: /trip fund/i }))
 
-    expect(await screen.findByRole('heading', { name: 'Trip Fund' })).toBeInTheDocument()
-    expect(screen.queryByRole('heading', { name: 'Home Budget' })).not.toBeInTheDocument()
+    expect(await screen.findByText('Trip Fund')).toBeInTheDocument()
+    expect(screen.queryByText('Home Budget')).not.toBeInTheDocument()
     expect(screen.getAllByText(/invite someone/i)).toHaveLength(1)
   })
 

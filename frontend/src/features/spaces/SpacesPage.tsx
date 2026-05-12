@@ -10,7 +10,8 @@ import { useSpaces, useCreateInvite, useDeleteSpace, type Space, type SpaceMembe
 import { useSpaceStore } from '@/store/spaceStore'
 import { useAuthStore } from '@/store/authStore'
 import { CreateSpaceModal } from './CreateSpaceModal'
-import { Check } from 'lucide-react'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { Check, ChevronDown } from 'lucide-react'
 
 function RoleBadge({ role }: { role: string }) {
   return (
@@ -197,20 +198,25 @@ export function SpacesPage() {
           <p className="text-sm text-muted-foreground">Manage your shared budget groups</p>
         </div>
         <div className="flex items-center gap-2">
-          {spaces.length > 1 && (
-            <select
-              aria-label="Switch space"
-              value={selectedSpaceId ?? ''}
-              onChange={(e) => setSelectedSpaceId(Number(e.target.value))}
-              className="rounded-md border border-input bg-background px-3 py-1.5 text-sm focus:ring-2 focus:ring-ring focus:outline-none"
-            >
-              {spaces.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.name}
-                </option>
-              ))}
-            </select>
-          )}
+          {spaces.length > 1 ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" aria-label="switch space">
+                  {selectedSpace?.name ?? 'Select space'}
+                  <ChevronDown className="ml-1 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {spaces.map((s) => (
+                  <DropdownMenuItem key={s.id} onSelect={() => setSelectedSpaceId(s.id)}>
+                    {s.name}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : selectedSpace ? (
+            <span className="text-sm font-medium">{selectedSpace.name}</span>
+          ) : null}
           <Button onClick={() => setModalOpen(true)}>+ New Space</Button>
         </div>
       </div>
@@ -229,7 +235,6 @@ export function SpacesPage() {
         </Card>
       ) : selectedSpace ? (
         <>
-          <h2 className="text-lg font-semibold">{selectedSpace.name}</h2>
           <Card>
             <CardHeader>
               <CardTitle className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
