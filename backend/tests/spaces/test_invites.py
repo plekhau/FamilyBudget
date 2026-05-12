@@ -23,6 +23,31 @@ def make_user(email):
 
 
 @pytest.mark.django_db
+class TestInviteDefaults:
+    def test_create_invite_without_expires_at_defaults_to_7_days(self, space_and_owner):
+        """POST without expires_at should succeed and default to 7 days from now."""
+        space_id, owner = space_and_owner
+        before = timezone.now()
+        response = owner.post(f"/api/spaces/{space_id}/invites/", {})
+        assert response.status_code == 201
+        assert "token" in response.data
+        expires = response.data["expires_at"]
+        from datetime import datetime
+        import dateutil.parser
+        expires_dt = dateutil.parser.parse(expires)
+        assert expires_dt >= before + timedelta(days=6)
+        assert expires_dt <= before + timedelta(days=8)
+
+    def test_create_email_invite_without_expires_at_defaults_to_7_days(self, space_and_owner):
+        """POST with email but without expires_at should also succeed and default to 7 days."""
+        space_id, owner = space_and_owner
+        response = owner.post(f"/api/spaces/{space_id}/invites/", {"email": "friend@example.com"})
+        assert response.status_code == 201
+        assert response.data["email"] == "friend@example.com"
+        assert "token" in response.data
+
+
+@pytest.mark.django_db
 class TestEmailInvite:
     def test_create_email_invite(self, space_and_owner):
         """Creating an email invite returns 201 with the invited email and a token."""

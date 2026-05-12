@@ -38,6 +38,7 @@ class SpaceInviteSerializer(serializers.ModelSerializer):
         model = SpaceInvite
         fields = ("id", "space", "email", "token", "status", "expires_at")
         read_only_fields = ("id", "space", "token", "status")
+        extra_kwargs = {"expires_at": {"required": False}}
 
     def validate(self, attrs):
         attrs.setdefault(
