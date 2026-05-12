@@ -156,20 +156,20 @@ function DangerZoneCard({ space }: { space: Space }) {
 
 export function SpacesPage() {
   const { data: spaces = [] } = useSpaces()
-  const { selectedSpaceId, setSelectedSpaceId } = useSpaceStore()
+  const selectedSpaceId = useSpaceStore((s) => s.selectedSpaceId)
+  const setSelectedSpaceId = useSpaceStore((s) => s.setSelectedSpaceId)
   const currentUser = useAuthStore((s) => s.user)
   const [modalOpen, setModalOpen] = useState(false)
 
   // Auto-select first space if none selected or selected space no longer accessible
   useEffect(() => {
     if (spaces.length === 0) {
-      if (selectedSpaceId !== null) setSelectedSpaceId(null)
+      setSelectedSpaceId(null)
       return
     }
     const valid = spaces.find((s) => s.id === selectedSpaceId)
-    if (!valid && spaces[0].id !== selectedSpaceId) setSelectedSpaceId(spaces[0].id)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [spaces, selectedSpaceId])
+    if (!valid) setSelectedSpaceId(spaces[0].id)
+  }, [spaces, selectedSpaceId, setSelectedSpaceId])
 
   const selectedSpace = spaces.find((s) => s.id === selectedSpaceId) ?? null
   const currentMembership = selectedSpace?.members.find((m) => m.user.id === currentUser?.id)
@@ -229,9 +229,9 @@ export function SpacesPage() {
             </CardContent>
           </Card>
 
-          <InviteCard spaceId={selectedSpace.id} />
+          <InviteCard key={selectedSpace.id} spaceId={selectedSpace.id} />
 
-          {isOwner && <DangerZoneCard space={selectedSpace} />}
+          {isOwner && <DangerZoneCard key={selectedSpace.id} space={selectedSpace} />}
         </>
       ) : null}
 
