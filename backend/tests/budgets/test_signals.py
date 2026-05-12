@@ -1,7 +1,8 @@
 # tests/budgets/test_signals.py
 import pytest
-from apps.budgets.models import Category
+
 from apps.budgets.default_categories import DEFAULT_CATEGORIES
+from apps.budgets.models import Category
 
 
 @pytest.mark.django_db

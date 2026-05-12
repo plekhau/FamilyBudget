@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Space, SpaceMembership, SpaceInvite
+
+from .models import Space, SpaceInvite, SpaceMembership
 
 
 @admin.register(Space)

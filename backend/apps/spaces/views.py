@@ -1,10 +1,12 @@
 from django.utils import timezone
-from rest_framework import generics, status, permissions
+from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .models import Space, SpaceMembership, SpaceInvite
-from .serializers import SpaceSerializer, SpaceInviteSerializer, AcceptInviteSerializer
+
+from .models import Space, SpaceInvite, SpaceMembership
 from .permissions import IsSpaceOwner, IsSpaceOwnerOrAdmin
+from .serializers import (AcceptInviteSerializer, SpaceInviteSerializer,
+                          SpaceSerializer)
 
 
 class SpaceListCreateView(generics.ListCreateAPIView):
@@ -49,6 +51,7 @@ class SpaceInviteCreateView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         from django.http import Http404
+
         try:
             space = Space.objects.get(
                 pk=self.kwargs["space_id"],
@@ -66,17 +69,27 @@ class AcceptInviteView(APIView):
         token = serializer.validated_data["token"]
 
         try:
-            invite = SpaceInvite.objects.get(token=token, status=SpaceInvite.Status.PENDING)
+            invite = SpaceInvite.objects.get(
+                token=token, status=SpaceInvite.Status.PENDING
+            )
         except SpaceInvite.DoesNotExist:
-            return Response({"detail": "Invalid or expired invite."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"detail": "Invalid or expired invite."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         if invite.expires_at < timezone.now():
             invite.status = SpaceInvite.Status.EXPIRED
             invite.save()
-            return Response({"detail": "Invite has expired."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"detail": "Invite has expired."}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         if invite.email and invite.email != request.user.email:
-            return Response({"detail": "This invite is for a different email address."}, status=status.HTTP_403_FORBIDDEN)
+            return Response(
+                {"detail": "This invite is for a different email address."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
 
         SpaceMembership.objects.get_or_create(
             space=invite.space,
@@ -85,7 +98,9 @@ class AcceptInviteView(APIView):
         )
         invite.status = SpaceInvite.Status.ACCEPTED
         invite.save()
-        return Response({"detail": "Joined space successfully."}, status=status.HTTP_200_OK)
+        return Response(
+            {"detail": "Joined space successfully."}, status=status.HTTP_200_OK
+        )
 
 
 class RevokeInviteView(APIView):
@@ -97,7 +112,10 @@ class RevokeInviteView(APIView):
         ).first()
         if not membership:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        if membership.role not in (SpaceMembership.Role.OWNER, SpaceMembership.Role.ADMIN):
+        if membership.role not in (
+            SpaceMembership.Role.OWNER,
+            SpaceMembership.Role.ADMIN,
+        ):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         try:

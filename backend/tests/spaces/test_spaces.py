@@ -1,5 +1,6 @@
 # tests/spaces/test_spaces.py
 import pytest
+
 from apps.accounts.models import User
 
 

@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import Category, Transaction, RecurringTransaction
+
+from .models import Category, RecurringTransaction, Transaction
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -13,8 +14,15 @@ class TransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transaction
         fields = (
-            "id", "space", "category", "amount", "date",
-            "paid_by", "notes", "created_by", "created_at",
+            "id",
+            "space",
+            "category",
+            "amount",
+            "date",
+            "paid_by",
+            "notes",
+            "created_by",
+            "created_at",
         )
         read_only_fields = ("id", "space", "created_by", "created_at")
 
@@ -25,9 +33,7 @@ class TransactionSerializer(serializers.ModelSerializer):
         if space is None and self.instance is not None:
             space = self.instance.space
         if space is not None and category.space != space:
-            raise serializers.ValidationError(
-                "Category does not belong to this space."
-            )
+            raise serializers.ValidationError("Category does not belong to this space.")
         return category
 
 
@@ -35,7 +41,14 @@ class RecurringTransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = RecurringTransaction
         fields = (
-            "id", "space", "category", "amount", "description",
-            "frequency", "start_date", "next_due_date", "is_active",
+            "id",
+            "space",
+            "category",
+            "amount",
+            "description",
+            "frequency",
+            "start_date",
+            "next_due_date",
+            "is_active",
         )
         read_only_fields = ("id", "space")

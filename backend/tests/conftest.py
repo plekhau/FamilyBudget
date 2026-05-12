@@ -10,6 +10,7 @@ def api_client():
 @pytest.fixture
 def auth_client(db):
     from apps.accounts.models import User
+
     client = APIClient()
     user = User.objects.create_user(
         email="test@example.com",

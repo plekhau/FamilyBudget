@@ -43,6 +43,14 @@ uv run python manage.py runserver --settings=config.settings.local
 uv run pytest
 ```
 
+### Linting & Formatting
+
+```bash
+uv run black .     # format code (120 char line length)
+uv run isort .     # sort imports
+uv run flake8 .    # lint
+```
+
 ## Frontend
 
 ### Setup

@@ -1,5 +1,6 @@
 # tests/budgets/test_categories.py
 import pytest
+
 from apps.accounts.models import User
 
 
@@ -25,12 +26,15 @@ class TestCategoryAPI:
 
     def test_create_category(self, auth_client, space_id):
         """Creating a category with valid data returns 201 and the created category."""
-        response = auth_client.post("/api/budgets/categories/", {
-            "space_id": space_id,
-            "name": "Piano Lessons",
-            "icon": "🎹",
-            "is_income": False,
-        })
+        response = auth_client.post(
+            "/api/budgets/categories/",
+            {
+                "space_id": space_id,
+                "name": "Piano Lessons",
+                "icon": "🎹",
+                "is_income": False,
+            },
+        )
         assert response.status_code == 201
         assert response.data["name"] == "Piano Lessons"
 
@@ -38,11 +42,14 @@ class TestCategoryAPI:
         """Updating a category via PUT replaces its fields and returns the updated data."""
         list_response = auth_client.get(f"/api/budgets/categories/?space_id={space_id}")
         cat_id = list_response.data[0]["id"]
-        response = auth_client.put(f"/api/budgets/categories/{cat_id}/", {
-            "name": "Renamed",
-            "icon": "🏡",
-            "is_income": False,
-        })
+        response = auth_client.put(
+            f"/api/budgets/categories/{cat_id}/",
+            {
+                "name": "Renamed",
+                "icon": "🏡",
+                "is_income": False,
+            },
+        )
         assert response.status_code == 200
         assert response.data["name"] == "Renamed"
 
@@ -65,5 +72,7 @@ class TestCategoryAPI:
         assert other_space.status_code == 201
         other_space_id = other_space.data["id"]
 
-        response = auth_client.get(f"/api/budgets/categories/?space_id={other_space_id}")
+        response = auth_client.get(
+            f"/api/budgets/categories/?space_id={other_space_id}"
+        )
         assert response.status_code == 403

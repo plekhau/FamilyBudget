@@ -1,6 +1,8 @@
 # tests/budgets/test_reports.py
-import pytest
 from datetime import date
+
+import pytest
+
 from apps.budgets.models import Transaction
 
 
@@ -11,11 +13,21 @@ def seeded_space(auth_client):
     categories = auth_client.get(f"/api/budgets/categories/?space_id={space_id}")
     cat = categories.data[0]
     user_id = auth_client._user.id
-    for day, amount in [("2026-03-05", "100.00"), ("2026-03-20", "50.00"), ("2026-04-01", "200.00")]:
-        auth_client.post("/api/budgets/transactions/", {
-            "space_id": space_id, "category": cat["id"],
-            "amount": amount, "date": day, "paid_by": user_id,
-        })
+    for day, amount in [
+        ("2026-03-05", "100.00"),
+        ("2026-03-20", "50.00"),
+        ("2026-04-01", "200.00"),
+    ]:
+        auth_client.post(
+            "/api/budgets/transactions/",
+            {
+                "space_id": space_id,
+                "category": cat["id"],
+                "amount": amount,
+                "date": day,
+                "paid_by": user_id,
+            },
+        )
     return space_id, cat
 
 
@@ -54,17 +66,28 @@ class TestReports:
 
     def test_report_requires_space_id(self, auth_client):
         """Requesting a report without space_id returns 400."""
-        response = auth_client.get("/api/budgets/reports/monthly-summary/?month=2026-03")
+        response = auth_client.get(
+            "/api/budgets/reports/monthly-summary/?month=2026-03"
+        )
         assert response.status_code == 400
 
     def test_report_wrong_space_forbidden(self, auth_client, api_client):
         """A user cannot access reports for a space they are not a member of."""
-        api_client.post("/api/auth/register/", {
-            "email": "other3@example.com", "password": "testpass123", "display_name": "Other",
-        })
-        login = api_client.post("/api/auth/token/", {
-            "email": "other3@example.com", "password": "testpass123",
-        })
+        api_client.post(
+            "/api/auth/register/",
+            {
+                "email": "other3@example.com",
+                "password": "testpass123",
+                "display_name": "Other",
+            },
+        )
+        login = api_client.post(
+            "/api/auth/token/",
+            {
+                "email": "other3@example.com",
+                "password": "testpass123",
+            },
+        )
         api_client.credentials(HTTP_AUTHORIZATION=f"Bearer {login.data['access']}")
         other_space = api_client.post("/api/spaces/", {"name": "Other"})
         response = auth_client.get(

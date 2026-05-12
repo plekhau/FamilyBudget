@@ -1,11 +1,15 @@
 from rest_framework import generics, status
-from rest_framework.exceptions import ValidationError, PermissionDenied, NotFound
-from rest_framework.views import APIView
+from rest_framework.exceptions import (NotFound, PermissionDenied,
+                                       ValidationError)
 from rest_framework.response import Response
-from .models import Category, Transaction, RecurringTransaction
-from .serializers import CategorySerializer, TransactionSerializer, RecurringTransactionSerializer
+from rest_framework.views import APIView
+
 from apps.spaces.models import Space, SpaceMembership
+
 from . import reports as report_queries
+from .models import Category, RecurringTransaction, Transaction
+from .serializers import (CategorySerializer, RecurringTransactionSerializer,
+                          TransactionSerializer)
 
 
 def get_space_for_user(space_id, user):
@@ -41,9 +45,7 @@ class CategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CategorySerializer
 
     def get_queryset(self):
-        return Category.objects.filter(
-            space__memberships__user=self.request.user
-        )
+        return Category.objects.filter(space__memberships__user=self.request.user)
 
 
 class TransactionListCreateView(generics.ListCreateAPIView):
@@ -51,7 +53,9 @@ class TransactionListCreateView(generics.ListCreateAPIView):
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        space_id = self.request.data.get("space_id") or self.request.query_params.get("space_id")
+        space_id = self.request.data.get("space_id") or self.request.query_params.get(
+            "space_id"
+        )
         if space_id:
             try:
                 space = get_space_for_user(space_id, self.request.user)

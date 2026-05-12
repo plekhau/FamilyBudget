@@ -1,4 +1,5 @@
 from rest_framework.permissions import BasePermission
+
 from .models import SpaceMembership
 
 
@@ -11,6 +12,7 @@ def get_membership(user, space):
 
 class IsSpaceMember(BasePermission):
     """Request must include a space the user belongs to."""
+
     def has_object_permission(self, request, view, obj):
         space = obj if hasattr(obj, "memberships") else obj.space
         return SpaceMembership.objects.filter(user=request.user, space=space).exists()

@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Category, Transaction, RecurringTransaction
+
+from .models import Category, RecurringTransaction, Transaction
 
 
 @admin.register(Category)

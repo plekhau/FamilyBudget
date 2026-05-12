@@ -1,6 +1,8 @@
 from datetime import date
+
 from dateutil.relativedelta import relativedelta
 from django.core.management.base import BaseCommand
+
 from apps.budgets.models import RecurringTransaction, Transaction
 
 

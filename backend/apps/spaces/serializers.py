@@ -1,8 +1,11 @@
-from django.utils import timezone
 from datetime import timedelta
+
+from django.utils import timezone
 from rest_framework import serializers
-from .models import Space, SpaceMembership, SpaceInvite
+
 from apps.accounts.models import User
+
+from .models import Space, SpaceInvite, SpaceMembership
 
 
 class UserBriefSerializer(serializers.ModelSerializer):

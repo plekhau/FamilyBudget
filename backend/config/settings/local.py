@@ -1,4 +1,5 @@
 import os
+
 import environ
 
 # Read .env from the backend/ directory (two levels up from this settings file)
