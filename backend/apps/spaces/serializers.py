@@ -36,7 +36,7 @@ class SpaceInviteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SpaceInvite
-        fields = ("id", "space", "email", "token", "status", "expires_at")
+        fields = ("id", "space", "token", "status", "expires_at")
         read_only_fields = ("id", "space", "token", "status")
         extra_kwargs = {"expires_at": {"required": False}}
 

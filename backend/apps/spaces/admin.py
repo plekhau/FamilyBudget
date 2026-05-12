@@ -15,4 +15,4 @@ class SpaceMembershipAdmin(admin.ModelAdmin):
 
 @admin.register(SpaceInvite)
 class SpaceInviteAdmin(admin.ModelAdmin):
-    list_display = ("space", "email", "status", "expires_at")
+    list_display = ("space", "status", "expires_at")

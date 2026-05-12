@@ -85,12 +85,6 @@ class AcceptInviteView(APIView):
                 {"detail": "Invite has expired."}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        if invite.email and invite.email != request.user.email:
-            return Response(
-                {"detail": "This invite is for a different email address."},
-                status=status.HTTP_403_FORBIDDEN,
-            )
-
         SpaceMembership.objects.get_or_create(
             space=invite.space,
             user=request.user,

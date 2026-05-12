@@ -81,7 +81,6 @@ export const handlers = [
       {
         id: 1,
         space: 1,
-        email: null,
         token: 'test-invite-token-uuid',
         status: 'pending',
         expires_at: '2026-01-08T00:00:00Z',

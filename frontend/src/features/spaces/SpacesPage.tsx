@@ -42,14 +42,11 @@ function InviteCard({ spaceId }: { spaceId: number }) {
   const createInvite = useCreateInvite(spaceId)
 
   const handleGenerate = () => {
-    createInvite.mutate(
-      {},
-      {
-        onSuccess: (data) => {
-          setInviteUrl(`${window.location.origin}/invite?token=${data.token}`)
-        },
-      }
-    )
+    createInvite.mutate(undefined, {
+      onSuccess: (data) => {
+        setInviteUrl(`${window.location.origin}/invite?token=${data.token}`)
+      },
+    })
   }
 
   return (

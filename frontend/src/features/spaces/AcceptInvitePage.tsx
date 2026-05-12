@@ -1,6 +1,5 @@
 import { useEffect } from 'react'
 import { useSearchParams, useNavigate } from 'react-router'
-import type { AxiosError } from 'axios'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useAuthStore } from '@/store/authStore'
@@ -34,12 +33,7 @@ export function AcceptInvitePage() {
 
   if (!user) return null
 
-  const errorMessage = (() => {
-    if (!acceptInvite.error) return null
-    const err = acceptInvite.error as AxiosError<{ detail: string }>
-    if (err.response?.status === 403) return 'This invite was sent to a different email address.'
-    return 'This invite link is invalid or has expired.'
-  })()
+  const errorMessage = acceptInvite.error ? 'This invite link is invalid or has expired.' : null
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">

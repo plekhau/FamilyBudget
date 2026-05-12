@@ -54,10 +54,7 @@ export function useDeleteSpace() {
 
 export function useCreateInvite(spaceId: number) {
   return useMutation({
-    mutationFn: (data: { email?: string }) => {
-      const body = data.email ? { email: data.email } : {}
-      return api.post<{ token: string }>(`/api/spaces/${spaceId}/invites/`, body).then((r) => r.data)
-    },
+    mutationFn: () => api.post<{ token: string }>(`/api/spaces/${spaceId}/invites/`, {}).then((r) => r.data),
   })
 }
 

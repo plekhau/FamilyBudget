@@ -55,7 +55,6 @@ class SpaceInvite(models.Model):
         on_delete=models.CASCADE,
         related_name="sent_invites",
     )
-    email = models.EmailField(null=True, blank=True)
     token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     status = models.CharField(
         max_length=10, choices=Status.choices, default=Status.PENDING

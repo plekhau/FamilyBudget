@@ -67,17 +67,6 @@ describe('AcceptInvitePage', () => {
     expect(await screen.findByText(/invalid or has expired/i)).toBeInTheDocument()
   })
 
-  it('shows error on 403 (invite sent to different email)', async () => {
-    server.use(
-      http.post(`${BASE}/api/spaces/invites/accept/`, () =>
-        HttpResponse.json({ detail: 'This invite is for a different email address.' }, { status: 403 })
-      )
-    )
-    renderAcceptInvite('other-token')
-    await userEvent.click(await screen.findByRole('button', { name: /accept invitation/i }))
-    expect(await screen.findByText(/different email/i)).toBeInTheDocument()
-  })
-
   it('redirects unauthenticated users to the login page', async () => {
     useAuthStore.setState({ user: null, accessToken: null, refreshToken: null })
     renderAcceptInvite('abc123')
