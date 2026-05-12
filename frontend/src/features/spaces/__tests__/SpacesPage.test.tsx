@@ -138,7 +138,7 @@ describe('SpacesPage', () => {
     await userEvent.click(await screen.findByRole('button', { name: /new space/i }))
     expect(await screen.findByRole('dialog')).toBeInTheDocument()
     await userEvent.type(screen.getByLabelText(/space name/i), 'Trip Fund')
-    await userEvent.click(screen.getByRole('button', { name: /^create$/i }))
+    await userEvent.click(screen.getByRole('button', { name: /create space/i }))
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
   })
 

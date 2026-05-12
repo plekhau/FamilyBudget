@@ -1,5 +1,12 @@
 import { useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -28,23 +35,27 @@ export function CreateSpaceModal({ open, onClose }: Props) {
     )
   }
 
+  const handleClose = () => {
+    setName('')
+    onClose()
+  }
+
   return (
     <Dialog
       open={open}
       onOpenChange={(isOpen) => {
-        if (!isOpen) {
-          setName('')
-          onClose()
-        }
+        if (!isOpen) handleClose()
       }}
     >
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create a new space</DialogTitle>
+          <DialogDescription>Spaces let you share a budget with your household or a group.</DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-1">
-            <Label htmlFor="space-name">Space Name</Label>
+
+        <form onSubmit={handleSubmit} className="space-y-6 py-2">
+          <div className="space-y-2">
+            <Label htmlFor="space-name">Space name</Label>
             <Input
               id="space-name"
               placeholder="e.g. Home Budget"
@@ -56,10 +67,16 @@ export function CreateSpaceModal({ open, onClose }: Props) {
           {createSpace.isError && (
             <p className="text-sm text-destructive">Failed to create the space. Please try again.</p>
           )}
-          <Button type="submit" disabled={!name.trim() || createSpace.isPending} className="w-full">
-            {createSpace.isPending ? 'Creating…' : 'Create'}
-          </Button>
         </form>
+
+        <DialogFooter>
+          <Button type="button" variant="outline" onClick={handleClose}>
+            Cancel
+          </Button>
+          <Button type="submit" disabled={!name.trim() || createSpace.isPending} onClick={handleSubmit}>
+            {createSpace.isPending ? 'Creating…' : 'Create Space'}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   )
