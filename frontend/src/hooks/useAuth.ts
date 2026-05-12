@@ -27,8 +27,9 @@ export function useLogin() {
       const { data: user } = await api.get<AuthUser>('/api/auth/me/')
       setUser(user)
       const params = new URLSearchParams(location.search)
-      const redirect = params.get('redirect')
-      navigate(redirect ?? '/', { replace: true })
+      const raw = params.get('redirect') ?? '/'
+      const redirect = raw.startsWith('/') && !raw.startsWith('//') ? raw : '/'
+      navigate(redirect, { replace: true })
     },
   })
 }

@@ -53,6 +53,9 @@ export function CreateSpaceModal({ open, onClose }: Props) {
               autoFocus
             />
           </div>
+          {createSpace.isError && (
+            <p className="text-sm text-destructive">Failed to create the space. Please try again.</p>
+          )}
           <Button type="submit" disabled={!name.trim() || createSpace.isPending} className="w-full">
             {createSpace.isPending ? 'Creating…' : 'Create'}
           </Button>

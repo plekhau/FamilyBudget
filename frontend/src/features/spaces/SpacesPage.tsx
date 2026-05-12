@@ -130,6 +130,9 @@ function DangerZoneCard({ space }: { space: Space }) {
           value={confirmName}
           onChange={(e) => setConfirmName(e.target.value)}
         />
+        {deleteSpace.isError && (
+          <p className="text-sm text-destructive">Failed to delete the space. Please try again.</p>
+        )}
         <div className="flex gap-2">
           <Button
             variant="destructive"
