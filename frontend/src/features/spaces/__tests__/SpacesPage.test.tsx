@@ -90,6 +90,49 @@ describe('SpacesPage', () => {
     expect(await screen.findByRole('combobox')).toBeInTheDocument()
   })
 
+  it('switching spaces shows the new space and renders each section exactly once', async () => {
+    server.use(
+      http.get(`${BASE}/api/spaces/`, () =>
+        HttpResponse.json([
+          {
+            id: 1,
+            name: 'Home Budget',
+            created_at: '2026-01-01T00:00:00Z',
+            members: [
+              {
+                id: 1,
+                user: { id: 1, email: 'test@example.com', display_name: 'Test User' },
+                role: 'owner',
+                joined_at: '2026-01-01T00:00:00Z',
+              },
+            ],
+          },
+          {
+            id: 2,
+            name: 'Trip Fund',
+            created_at: '2026-01-01T00:00:00Z',
+            members: [
+              {
+                id: 2,
+                user: { id: 1, email: 'test@example.com', display_name: 'Test User' },
+                role: 'member',
+                joined_at: '2026-01-01T00:00:00Z',
+              },
+            ],
+          },
+        ])
+      )
+    )
+    renderSpaces()
+    await screen.findByRole('heading', { name: 'Home Budget' })
+
+    await userEvent.selectOptions(screen.getByRole('combobox'), '2')
+
+    expect(await screen.findByRole('heading', { name: 'Trip Fund' })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Home Budget' })).not.toBeInTheDocument()
+    expect(screen.getAllByText(/invite someone/i)).toHaveLength(1)
+  })
+
   it('opens the create space modal and closes it after creation', async () => {
     renderSpaces()
     await userEvent.click(await screen.findByRole('button', { name: /new space/i }))
