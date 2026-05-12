@@ -38,17 +38,15 @@ function MemberRow({ member, currentUserId }: { member: SpaceMember; currentUser
 }
 
 function InviteCard({ spaceId }: { spaceId: number }) {
-  const [email, setEmail] = useState('')
   const [inviteUrl, setInviteUrl] = useState<string | null>(null)
   const createInvite = useCreateInvite(spaceId)
 
   const handleGenerate = () => {
     createInvite.mutate(
-      { email: email || undefined },
+      {},
       {
         onSuccess: (data) => {
           setInviteUrl(`${window.location.origin}/invite?token=${data.token}`)
-          setEmail('')
         },
       }
     )
@@ -62,17 +60,9 @@ function InviteCard({ spaceId }: { spaceId: number }) {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        <div className="flex gap-2">
-          <Input
-            type="email"
-            placeholder="Email address (optional)"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <Button type="button" onClick={handleGenerate} disabled={createInvite.isPending}>
-            Generate Link
-          </Button>
-        </div>
+        <Button type="button" onClick={handleGenerate} disabled={createInvite.isPending}>
+          {createInvite.isPending ? 'Generating…' : 'Generate Link'}
+        </Button>
         {inviteUrl && (
           <div className="space-y-1">
             <Label>Invite link</Label>
