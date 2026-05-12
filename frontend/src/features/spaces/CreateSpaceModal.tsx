@@ -53,7 +53,7 @@ export function CreateSpaceModal({ open, onClose }: Props) {
           <DialogDescription>Spaces let you share a budget with your household or a group.</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6 py-2">
+        <form onSubmit={handleSubmit} className="space-y-5 py-2">
           <div className="space-y-2">
             <Label htmlFor="space-name">Space name</Label>
             <Input

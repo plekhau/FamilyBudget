@@ -30,13 +30,13 @@ export function LoginPage() {
           <CardDescription>Sign in to your account</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit((d) => login.mutate(d))} className="space-y-4" noValidate>
-            <div className="space-y-1">
+          <form onSubmit={handleSubmit((d) => login.mutate(d))} className="space-y-5" noValidate>
+            <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input id="email" type="email" placeholder="you@example.com" {...register('email')} />
               {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
             </div>
-            <div className="space-y-1">
+            <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <Input id="password" type="password" placeholder="••••••••" {...register('password')} />
               {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
