@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { vi } from 'vitest'
 import { MemoryRouter } from 'react-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { http, HttpResponse, delay } from 'msw'
@@ -194,5 +195,16 @@ describe('SpacesPage', () => {
     )
     renderSpaces()
     expect(await screen.findByTestId('spaces-loading')).toBeInTheDocument()
+  })
+
+  it('shows "Copied!" after clicking the copy button', async () => {
+    Object.assign(navigator, {
+      clipboard: { writeText: vi.fn().mockResolvedValue(undefined) },
+    })
+    renderSpaces()
+    await userEvent.click(await screen.findByRole('button', { name: /generate link/i }))
+    await screen.findByDisplayValue(/test-invite-token-uuid/)
+    await userEvent.click(screen.getByRole('button', { name: /copy/i }))
+    expect(await screen.findByText(/copied!/i)).toBeInTheDocument()
   })
 })
