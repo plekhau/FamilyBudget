@@ -10,6 +10,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { toast } from 'sonner'
 import { useCreateSpace } from '@/hooks/useSpaces'
 
 interface Props {
@@ -31,6 +32,7 @@ export function CreateSpaceModal({ open, onClose }: Props) {
           setName('')
           onClose()
         },
+        onError: () => toast.error('Failed to create space. Please try again.'),
       }
     )
   }
@@ -64,9 +66,6 @@ export function CreateSpaceModal({ open, onClose }: Props) {
               autoFocus
             />
           </div>
-          {createSpace.isError && (
-            <p className="text-sm text-destructive">Failed to create the space. Please try again.</p>
-          )}
         </form>
 
         <DialogFooter>
