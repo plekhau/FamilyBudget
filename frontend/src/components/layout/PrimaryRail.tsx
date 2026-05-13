@@ -20,14 +20,14 @@ function RailIcon({ icon: Icon, label, to }: { icon: React.ElementType; label: s
           aria-label={label}
           className={({ isActive }) =>
             cn(
-              'flex h-9 w-9 items-center justify-center rounded-lg transition-colors',
+              'flex h-10 w-10 items-center justify-center rounded-lg transition-colors',
               isActive
                 ? 'bg-primary text-primary-foreground'
                 : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
             )
           }
         >
-          <Icon className="h-4 w-4" />
+          <Icon className="h-6 w-6" />
         </NavLink>
       </TooltipTrigger>
       <TooltipContent side="right">{label}</TooltipContent>
@@ -37,8 +37,8 @@ function RailIcon({ icon: Icon, label, to }: { icon: React.ElementType; label: s
 
 export function PrimaryRail() {
   return (
-    <nav className="flex w-14 flex-col items-center border-r border-border bg-card py-3">
-      <div className="mb-4 flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground">
+    <nav className="flex w-16 flex-col items-center border-r border-border bg-card py-3">
+      <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground">
         F
       </div>
       <div className="flex flex-1 flex-col gap-1">
