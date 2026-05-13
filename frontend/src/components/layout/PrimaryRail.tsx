@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router'
+import { NavLink, useMatch } from 'react-router'
 import { LayoutDashboard, Wallet, Users, Settings } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -12,20 +12,19 @@ const TOP_ITEMS = [
 const BOTTOM_ITEMS = [{ id: 'settings', icon: Settings, label: 'Settings', to: '/settings' }]
 
 function RailIcon({ icon: Icon, label, to }: { icon: React.ElementType; label: string; to: string }) {
+  const isActive = useMatch({ path: to, end: false })
   return (
     <Tooltip>
       <TooltipTrigger asChild>
         <NavLink
           to={to}
           aria-label={label}
-          className={({ isActive }) =>
-            cn(
-              'flex h-10 w-10 items-center justify-center rounded-lg transition-colors',
-              isActive
-                ? 'bg-primary text-primary-foreground'
-                : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-            )
-          }
+          className={cn(
+            'flex h-10 w-10 items-center justify-center rounded-lg transition-colors',
+            isActive
+              ? 'bg-primary text-primary-foreground'
+              : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+          )}
         >
           <Icon className="h-6 w-6" />
         </NavLink>

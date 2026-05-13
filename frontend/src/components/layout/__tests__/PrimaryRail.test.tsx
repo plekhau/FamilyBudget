@@ -20,11 +20,11 @@ describe('PrimaryRail', () => {
     expect(nav).toHaveClass('w-16')
   })
 
-  it('renders nav link buttons sized h-10 w-10', () => {
+  it('renders nav link buttons sized h-10 w-10 with flex centering', () => {
     const { container } = renderRail()
     const links = container.querySelectorAll('nav a')
     links.forEach((link) => {
-      expect(link).toHaveClass('h-10', 'w-10')
+      expect(link).toHaveClass('flex', 'h-10', 'w-10', 'items-center', 'justify-center')
     })
   })
 
