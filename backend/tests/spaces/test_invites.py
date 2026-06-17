@@ -65,9 +65,7 @@ class TestOpenLinkInvite:
         invite_id = invite_response.data["id"]
         response = owner.delete(f"/api/spaces/{space_id}/invites/{invite_id}/")
         assert response.status_code == 204
-        assert (
-            SpaceInvite.objects.get(pk=invite_id).status == SpaceInvite.Status.REVOKED
-        )
+        assert SpaceInvite.objects.get(pk=invite_id).status == SpaceInvite.Status.REVOKED
 
     def test_revoked_invite_cannot_be_accepted(self, space_and_owner, api_client):
         """A revoked invite token cannot be accepted and returns 400."""

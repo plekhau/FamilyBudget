@@ -1,9 +1,14 @@
 from django.urls import path
 
-from .views import (CategoryDetailView, CategoryListCreateView,
-                    RecurringTransactionDetailView,
-                    RecurringTransactionListCreateView, ReportView,
-                    TransactionDetailView, TransactionListCreateView)
+from .views import (
+    CategoryDetailView,
+    CategoryListCreateView,
+    RecurringTransactionDetailView,
+    RecurringTransactionListCreateView,
+    ReportView,
+    TransactionDetailView,
+    TransactionListCreateView,
+)
 
 urlpatterns = [
     path("categories/", CategoryListCreateView.as_view(), name="category-list"),

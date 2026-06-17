@@ -24,9 +24,7 @@ class SpaceMembership(models.Model):
         ADMIN = "admin", "Admin"
         MEMBER = "member", "Member"
 
-    space = models.ForeignKey(
-        Space, on_delete=models.CASCADE, related_name="memberships"
-    )
+    space = models.ForeignKey(Space, on_delete=models.CASCADE, related_name="memberships")
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -56,9 +54,7 @@ class SpaceInvite(models.Model):
         related_name="sent_invites",
     )
     token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
-    status = models.CharField(
-        max_length=10, choices=Status.choices, default=Status.PENDING
-    )
+    status = models.CharField(max_length=10, choices=Status.choices, default=Status.PENDING)
     expires_at = models.DateTimeField()
 
     def __str__(self):

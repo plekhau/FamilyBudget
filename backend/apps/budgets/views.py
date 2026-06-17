@@ -1,6 +1,5 @@
-from rest_framework import generics, status
-from rest_framework.exceptions import (NotFound, PermissionDenied,
-                                       ValidationError)
+from rest_framework import generics
+from rest_framework.exceptions import NotFound, PermissionDenied, ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -8,8 +7,7 @@ from apps.spaces.models import Space, SpaceMembership
 
 from . import reports as report_queries
 from .models import Category, RecurringTransaction, Transaction
-from .serializers import (CategorySerializer, RecurringTransactionSerializer,
-                          TransactionSerializer)
+from .serializers import CategorySerializer, RecurringTransactionSerializer, TransactionSerializer
 
 
 def get_space_for_user(space_id, user):
@@ -53,9 +51,7 @@ class TransactionListCreateView(generics.ListCreateAPIView):
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        space_id = self.request.data.get("space_id") or self.request.query_params.get(
-            "space_id"
-        )
+        space_id = self.request.data.get("space_id") or self.request.query_params.get("space_id")
         if space_id:
             try:
                 space = get_space_for_user(space_id, self.request.user)
@@ -69,9 +65,7 @@ class TransactionListCreateView(generics.ListCreateAPIView):
         if not space_id:
             raise ValidationError({"space_id": "This parameter is required."})
         space = get_space_for_user(space_id, self.request.user)
-        qs = Transaction.objects.filter(space=space).select_related(
-            "category", "paid_by", "created_by"
-        )
+        qs = Transaction.objects.filter(space=space).select_related("category", "paid_by", "created_by")
 
         month = self.request.query_params.get("month")
         if month:
@@ -99,9 +93,9 @@ class TransactionDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = TransactionSerializer
 
     def get_queryset(self):
-        return Transaction.objects.filter(
-            space__memberships__user=self.request.user
-        ).select_related("category", "paid_by", "created_by")
+        return Transaction.objects.filter(space__memberships__user=self.request.user).select_related(
+            "category", "paid_by", "created_by"
+        )
 
 
 class RecurringTransactionListCreateView(generics.ListCreateAPIView):
@@ -126,9 +120,7 @@ class RecurringTransactionDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = RecurringTransactionSerializer
 
     def get_queryset(self):
-        return RecurringTransaction.objects.filter(
-            space__memberships__user=self.request.user
-        )
+        return RecurringTransaction.objects.filter(space__memberships__user=self.request.user)
 
 
 class ReportView(APIView):

@@ -18,10 +18,7 @@ class TestSpaceCRUD:
         space_id = response.data["id"]
         detail = auth_client.get(f"/api/spaces/{space_id}/")
         members = detail.data["members"]
-        assert any(
-            m["user"]["email"] == "test@example.com" and m["role"] == "owner"
-            for m in members
-        )
+        assert any(m["user"]["email"] == "test@example.com" and m["role"] == "owner" for m in members)
 
     def test_list_spaces_returns_only_member_spaces(self, auth_client, api_client):
         """Listing spaces returns only spaces the authenticated user belongs to, not spaces of other users."""

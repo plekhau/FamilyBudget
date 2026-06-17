@@ -72,7 +72,5 @@ class TestCategoryAPI:
         assert other_space.status_code == 201
         other_space_id = other_space.data["id"]
 
-        response = auth_client.get(
-            f"/api/budgets/categories/?space_id={other_space_id}"
-        )
+        response = auth_client.get(f"/api/budgets/categories/?space_id={other_space_id}")
         assert response.status_code == 403
