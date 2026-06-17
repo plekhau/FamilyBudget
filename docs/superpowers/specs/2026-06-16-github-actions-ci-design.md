@@ -128,15 +128,21 @@ default in `local.py`, but it is set explicitly for clarity.
 - `runs-on: ubuntu-latest`, all steps run with `working-directory: frontend`.
 - **Steps:**
   1. `actions/checkout@v4`
-  2. `pnpm/action-setup@v4` (pnpm version auto-detected from `packageManager`)
-  3. `actions/setup-node@v4` with `node-version: "20"`, `cache: pnpm`
+  2. `pnpm/action-setup@v4` with `package_json_file: frontend/package.json`
+     (pnpm version read from that file's `packageManager` field)
+  3. `actions/setup-node@v4` with `node-version: "22"`, `cache: pnpm`,
+     `cache-dependency-path: frontend/pnpm-lock.yaml`
   4. `pnpm install --frozen-lockfile`
   5. `pnpm lint`
   6. `pnpm format:check`
   7. `pnpm test:run`
 
 `pnpm/action-setup` runs before `setup-node` because the Node pnpm cache requires
-pnpm to already be installed.
+pnpm to already be installed. Because `uses:` steps ignore
+`defaults.run.working-directory` (it applies only to `run:` steps), the action
+runs from the repository root, so `package_json_file` must point explicitly at
+`frontend/package.json` for the `packageManager` field to be found. Node 22 is
+used because GitHub deprecated Node 20 on Actions runners.
 
 ## Source changes
 
