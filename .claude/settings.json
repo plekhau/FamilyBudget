@@ -14,7 +14,9 @@
       "Bash(pnpm lint*)",
       "Bash(pnpm format*)",
       "Bash(node -e *)",
-      "Bash(curl -s http://localhost:*)"
+      "Bash(curl -s http://localhost:*)",
+      "Bash(pnpm vitest run *)",
+      "Bash(uv run pytest *)"
     ],
     "defaultMode": "acceptEdits"
   }
