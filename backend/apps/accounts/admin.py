@@ -13,7 +13,5 @@ class UserAdmin(BaseUserAdmin):
         ("Personal", {"fields": ("display_name",)}),
         ("Permissions", {"fields": ("is_active", "is_staff", "is_superuser")}),
     )
-    add_fieldsets = (
-        (None, {"fields": ("email", "display_name", "password1", "password2")}),
-    )
+    add_fieldsets = ((None, {"fields": ("email", "display_name", "password1", "password2")}),)
     search_fields = ("email", "display_name")

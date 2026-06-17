@@ -140,11 +140,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 "ordering": ["-date", "-created_at"],
-                "indexes": [
-                    models.Index(
-                        fields=["space", "date"], name="budgets_tra_space_i_b4449e_idx"
-                    )
-                ],
+                "indexes": [models.Index(fields=["space", "date"], name="budgets_tra_space_i_b4449e_idx")],
             },
         ),
     ]

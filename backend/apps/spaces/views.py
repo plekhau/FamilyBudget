@@ -4,18 +4,15 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import Space, SpaceInvite, SpaceMembership
-from .permissions import IsSpaceOwner, IsSpaceOwnerOrAdmin
-from .serializers import (AcceptInviteSerializer, SpaceInviteSerializer,
-                          SpaceSerializer)
+from .permissions import IsSpaceOwner
+from .serializers import AcceptInviteSerializer, SpaceInviteSerializer, SpaceSerializer
 
 
 class SpaceListCreateView(generics.ListCreateAPIView):
     serializer_class = SpaceSerializer
 
     def get_queryset(self):
-        return Space.objects.filter(
-            memberships__user=self.request.user
-        ).prefetch_related("memberships__user")
+        return Space.objects.filter(memberships__user=self.request.user).prefetch_related("memberships__user")
 
     def perform_create(self, serializer):
         space = serializer.save(created_by=self.request.user)
@@ -30,9 +27,7 @@ class SpaceDetailView(generics.RetrieveDestroyAPIView):
     serializer_class = SpaceSerializer
 
     def get_queryset(self):
-        return Space.objects.filter(
-            memberships__user=self.request.user
-        ).prefetch_related("memberships__user")
+        return Space.objects.filter(memberships__user=self.request.user).prefetch_related("memberships__user")
 
     def destroy(self, request, *args, **kwargs):
         space = self.get_object()
@@ -69,9 +64,7 @@ class AcceptInviteView(APIView):
         token = serializer.validated_data["token"]
 
         try:
-            invite = SpaceInvite.objects.get(
-                token=token, status=SpaceInvite.Status.PENDING
-            )
+            invite = SpaceInvite.objects.get(token=token, status=SpaceInvite.Status.PENDING)
         except SpaceInvite.DoesNotExist:
             return Response(
                 {"detail": "Invalid or expired invite."},
@@ -81,9 +74,7 @@ class AcceptInviteView(APIView):
         if invite.expires_at < timezone.now():
             invite.status = SpaceInvite.Status.EXPIRED
             invite.save()
-            return Response(
-                {"detail": "Invite has expired."}, status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({"detail": "Invite has expired."}, status=status.HTTP_400_BAD_REQUEST)
 
         SpaceMembership.objects.get_or_create(
             space=invite.space,
@@ -92,18 +83,14 @@ class AcceptInviteView(APIView):
         )
         invite.status = SpaceInvite.Status.ACCEPTED
         invite.save()
-        return Response(
-            {"detail": "Joined space successfully."}, status=status.HTTP_200_OK
-        )
+        return Response({"detail": "Joined space successfully."}, status=status.HTTP_200_OK)
 
 
 class RevokeInviteView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def delete(self, request, space_id, invite_id):
-        membership = SpaceMembership.objects.filter(
-            user=request.user, space_id=space_id
-        ).first()
+        membership = SpaceMembership.objects.filter(user=request.user, space_id=space_id).first()
         if not membership:
             return Response(status=status.HTTP_404_NOT_FOUND)
         if membership.role not in (

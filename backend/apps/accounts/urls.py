@@ -1,7 +1,5 @@
 from django.urls import path
-from rest_framework_simplejwt.views import (TokenBlacklistView,
-                                            TokenObtainPairView,
-                                            TokenRefreshView)
+from rest_framework_simplejwt.views import TokenBlacklistView, TokenObtainPairView, TokenRefreshView
 
 from .views import MeView, RegisterView
 

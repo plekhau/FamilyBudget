@@ -56,16 +56,12 @@ class TestTransactionAPI:
                 "paid_by": user_id,
             },
         )
-        response = auth_client.get(
-            f"/api/budgets/transactions/?space_id={space_id}&month=2026-03"
-        )
+        response = auth_client.get(f"/api/budgets/transactions/?space_id={space_id}&month=2026-03")
         assert response.status_code == 200
         assert len(response.data) == 1
         assert response.data[0]["amount"] == "10.00"
 
-    def test_list_transactions_filtered_by_category(
-        self, auth_client, space_and_category
-    ):
+    def test_list_transactions_filtered_by_category(self, auth_client, space_and_category):
         """The category_id filter returns only transactions belonging to that category."""
         space_id, category_id = space_and_category
         user_id = auth_client._user.id
@@ -79,9 +75,7 @@ class TestTransactionAPI:
                 "paid_by": user_id,
             },
         )
-        response = auth_client.get(
-            f"/api/budgets/transactions/?space_id={space_id}&category_id={category_id}"
-        )
+        response = auth_client.get(f"/api/budgets/transactions/?space_id={space_id}&category_id={category_id}")
         assert response.status_code == 200
         assert all(t["category"] == category_id for t in response.data)
 

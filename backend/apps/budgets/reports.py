@@ -7,14 +7,9 @@ from .models import Category, Transaction
 
 def _summary(qs):
     """Aggregate Transaction queryset by category, return list of dicts."""
-    rows = list(
-        qs.values("category_id").annotate(total=Sum("amount")).order_by("category_id")
-    )
+    rows = list(qs.values("category_id").annotate(total=Sum("amount")).order_by("category_id"))
     category_ids = [row["category_id"] for row in rows]
-    category_names = {
-        c.id: {"name": c.name, "icon": c.icon}
-        for c in Category.objects.filter(id__in=category_ids)
-    }
+    category_names = {c.id: {"name": c.name, "icon": c.icon} for c in Category.objects.filter(id__in=category_ids)}
     return [
         {
             "category_id": row["category_id"],

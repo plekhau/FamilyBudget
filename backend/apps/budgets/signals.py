@@ -10,6 +10,4 @@ from .models import Category
 @receiver(post_save, sender=Space)
 def create_default_categories(sender, instance, created, **kwargs):
     if created:
-        Category.objects.bulk_create(
-            [Category(space=instance, **cat) for cat in DEFAULT_CATEGORIES]
-        )
+        Category.objects.bulk_create([Category(space=instance, **cat) for cat in DEFAULT_CATEGORIES])

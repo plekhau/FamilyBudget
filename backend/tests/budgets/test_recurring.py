@@ -49,9 +49,7 @@ class TestRecurringTransactionAPI:
                 "is_active": True,
             },
         )
-        response = auth_client.get(
-            f"/api/budgets/recurring-transactions/?space_id={space_id}"
-        )
+        response = auth_client.get(f"/api/budgets/recurring-transactions/?space_id={space_id}")
         assert response.status_code == 200
         assert len(response.data) == 1
 
