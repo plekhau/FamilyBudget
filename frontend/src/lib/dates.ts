@@ -61,7 +61,7 @@ export function formatWeekRange(weekStart: string): string {
     const month = end.toLocaleDateString('en-US', { month: 'short', ...opts })
     return `${start.getUTCDate()}–${end.getUTCDate()} ${month} ${year}`
   }
-  const startPart = start.toLocaleDateString('en-US', { day: 'numeric', month: 'short', ...opts })
-  const endPart = end.toLocaleDateString('en-US', { day: 'numeric', month: 'short', ...opts })
-  return `${startPart.split(' ').reverse().join(' ')} – ${endPart.split(' ').reverse().join(' ')} ${year}`
+  const startLabel = `${start.getUTCDate()} ${start.toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' })}`
+  const endLabel = `${end.getUTCDate()} ${end.toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' })}`
+  return `${startLabel} – ${endLabel} ${year}`
 }
