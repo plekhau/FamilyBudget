@@ -7,8 +7,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 FamilyBudget is a full-stack family budget tracking application consisting of:
 
 - `backend/` — Django REST Framework API
-- `frontend/` — React 19 + Vite 6 web app (Phase 1: auth + settings done)
+- `frontend/` — React 19 + Vite 6 web app (auth, settings, spaces, budget sections done)
 - `tests/` — end-to-end Playwright tests (planned)
+
+**Project status and phase history: see [docs/ROADMAP.md](docs/ROADMAP.md).** Design specs live in `docs/superpowers/specs/`, implementation plans in `docs/superpowers/plans/` (dated, immutable). When a phase completes, update the roadmap and this file.
 
 ## Commands
 
