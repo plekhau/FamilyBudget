@@ -10,7 +10,7 @@ export const CURRENCIES: Currency[] = [
   { code: 'GBP', symbol: '£', name: 'British Pound' },
   { code: 'JPY', symbol: '¥', name: 'Japanese Yen' },
   { code: 'CNY', symbol: '¥', name: 'Chinese Yuan' },
-  { code: 'CHF', symbol: 'CHF', name: 'Swiss Franc' },
+  { code: 'CHF', symbol: 'Fr.', name: 'Swiss Franc' },
   { code: 'CAD', symbol: '$', name: 'Canadian Dollar' },
   { code: 'AUD', symbol: '$', name: 'Australian Dollar' },
   { code: 'NZD', symbol: '$', name: 'New Zealand Dollar' },
