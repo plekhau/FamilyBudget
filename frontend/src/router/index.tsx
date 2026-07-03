@@ -18,6 +18,7 @@ const CategoriesPage = lazy(() =>
   import('@/features/budget/CategoriesPage').then((m) => ({ default: m.CategoriesPage }))
 )
 const RecurringPage = lazy(() => import('@/features/budget/RecurringPage').then((m) => ({ default: m.RecurringPage })))
+const ReportsPage = lazy(() => import('@/features/budget/ReportsPage').then((m) => ({ default: m.ReportsPage })))
 
 const Loader = () => <div className="flex min-h-screen items-center justify-center text-muted-foreground">Loading…</div>
 
@@ -83,7 +84,14 @@ export const router = createBrowserRouter([
               </Suspense>
             ),
           },
-          { path: '/budget/reports', element: <ComingSoon title="Reports" /> },
+          {
+            path: '/budget/reports',
+            element: (
+              <Suspense fallback={<Loader />}>
+                <ReportsPage />
+              </Suspense>
+            ),
+          },
           {
             path: '/settings',
             element: (
