@@ -27,8 +27,14 @@ class SpaceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Space
-        fields = ("id", "name", "created_at", "members")
+        fields = ("id", "name", "currency", "created_at", "members")
         read_only_fields = ("id", "created_at", "members")
+
+    def validate_currency(self, value):
+        value = value.upper()
+        if len(value) != 3 or not value.isalpha():
+            raise serializers.ValidationError("Currency must be a 3-letter code.")
+        return value
 
 
 class SpaceInviteSerializer(serializers.ModelSerializer):
