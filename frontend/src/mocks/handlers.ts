@@ -2,6 +2,68 @@ import { http, HttpResponse } from 'msw'
 
 const BASE = 'http://localhost:8000'
 
+export const mockCategories = [
+  { id: 1, name: 'Groceries', icon: '🛒', is_income: false },
+  { id: 2, name: 'Dining Out', icon: '🍽️', is_income: false },
+  { id: 3, name: 'Salary', icon: '💰', is_income: true },
+]
+
+export const mockTransactions = [
+  {
+    id: 1,
+    space: 1,
+    category: 1,
+    amount: '84.20',
+    date: '2026-05-14',
+    paid_by: 1,
+    notes: '',
+    created_by: 1,
+    created_at: '2026-05-14T10:00:00Z',
+  },
+  {
+    id: 2,
+    space: 1,
+    category: 2,
+    amount: '32.50',
+    date: '2026-05-14',
+    paid_by: 2,
+    notes: 'Pizza night',
+    created_by: 2,
+    created_at: '2026-05-14T19:00:00Z',
+  },
+  {
+    id: 3,
+    space: 1,
+    category: 3,
+    amount: '2400.00',
+    date: '2026-05-12',
+    paid_by: 1,
+    notes: '',
+    created_by: 1,
+    created_at: '2026-05-12T09:00:00Z',
+  },
+]
+
+export const mockRecurring = [
+  {
+    id: 1,
+    space: 1,
+    category: 1,
+    amount: '950.00',
+    description: 'Rent',
+    frequency: 'monthly',
+    start_date: '2026-01-01',
+    next_due_date: '2026-08-01',
+    is_active: true,
+  },
+]
+
+export const mockReport = [
+  { category_id: 1, category_name: 'Groceries', category_icon: '🛒', total: '84.20' },
+  { category_id: 2, category_name: 'Dining Out', category_icon: '🍽️', total: '32.50' },
+  { category_id: 3, category_name: 'Salary', category_icon: '💰', total: '2400.00' },
+]
+
 export const handlers = [
   http.post(`${BASE}/api/auth/token/`, () =>
     HttpResponse.json({
@@ -138,66 +200,4 @@ export const handlers = [
   http.delete(`${BASE}/api/budgets/recurring-transactions/:id/`, () => new HttpResponse(null, { status: 204 })),
 
   http.get(`${BASE}/api/budgets/reports/:reportType/`, () => HttpResponse.json(mockReport)),
-]
-
-export const mockCategories = [
-  { id: 1, name: 'Groceries', icon: '🛒', is_income: false },
-  { id: 2, name: 'Dining Out', icon: '🍽️', is_income: false },
-  { id: 3, name: 'Salary', icon: '💰', is_income: true },
-]
-
-export const mockTransactions = [
-  {
-    id: 1,
-    space: 1,
-    category: 1,
-    amount: '84.20',
-    date: '2026-05-14',
-    paid_by: 1,
-    notes: '',
-    created_by: 1,
-    created_at: '2026-05-14T10:00:00Z',
-  },
-  {
-    id: 2,
-    space: 1,
-    category: 2,
-    amount: '32.50',
-    date: '2026-05-14',
-    paid_by: 2,
-    notes: 'Pizza night',
-    created_by: 2,
-    created_at: '2026-05-14T19:00:00Z',
-  },
-  {
-    id: 3,
-    space: 1,
-    category: 3,
-    amount: '2400.00',
-    date: '2026-05-12',
-    paid_by: 1,
-    notes: '',
-    created_by: 1,
-    created_at: '2026-05-12T09:00:00Z',
-  },
-]
-
-export const mockRecurring = [
-  {
-    id: 1,
-    space: 1,
-    category: 1,
-    amount: '950.00',
-    description: 'Rent',
-    frequency: 'monthly',
-    start_date: '2026-01-01',
-    next_due_date: '2026-08-01',
-    is_active: true,
-  },
-]
-
-export const mockReport = [
-  { category_id: 1, category_name: 'Groceries', category_icon: '🛒', total: '84.20' },
-  { category_id: 2, category_name: 'Dining Out', category_icon: '🍽️', total: '32.50' },
-  { category_id: 3, category_name: 'Salary', category_icon: '💰', total: '2400.00' },
 ]
