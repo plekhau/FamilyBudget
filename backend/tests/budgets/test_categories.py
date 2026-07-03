@@ -74,3 +74,23 @@ class TestCategoryAPI:
 
         response = auth_client.get(f"/api/budgets/categories/?space_id={other_space_id}")
         assert response.status_code == 403
+
+    def test_delete_category_with_transactions_returns_409(self, auth_client):
+        """Deleting a category that has transactions returns 409 and keeps the category."""
+        space_id = auth_client.post("/api/spaces/", {"name": "Home"}).data["id"]
+        category_id = auth_client.get(f"/api/budgets/categories/?space_id={space_id}").data[0]["id"]
+        auth_client.post(
+            "/api/budgets/transactions/",
+            {
+                "space_id": space_id,
+                "category": category_id,
+                "amount": "10.00",
+                "date": "2026-07-01",
+                "paid_by": auth_client._user.id,
+            },
+        )
+        response = auth_client.delete(f"/api/budgets/categories/{category_id}/")
+        assert response.status_code == 409
+        assert response.data["detail"] == "This category has transactions and cannot be deleted."
+        remaining = auth_client.get(f"/api/budgets/categories/?space_id={space_id}")
+        assert any(c["id"] == category_id for c in remaining.data)
