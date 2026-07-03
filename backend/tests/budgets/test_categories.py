@@ -94,3 +94,25 @@ class TestCategoryAPI:
         assert response.data["detail"] == "This category has transactions and cannot be deleted."
         remaining = auth_client.get(f"/api/budgets/categories/?space_id={space_id}")
         assert any(c["id"] == category_id for c in remaining.data)
+
+    def test_delete_category_with_recurring_returns_409(self, auth_client):
+        """Deleting a category referenced by a recurring transaction returns 409 and keeps the category."""
+        space_id = auth_client.post("/api/spaces/", {"name": "Home"}).data["id"]
+        category_id = auth_client.get(f"/api/budgets/categories/?space_id={space_id}").data[0]["id"]
+        auth_client.post(
+            "/api/budgets/recurring-transactions/",
+            {
+                "space_id": space_id,
+                "category": category_id,
+                "amount": "15.99",
+                "description": "Netflix",
+                "frequency": "monthly",
+                "start_date": "2026-07-01",
+                "next_due_date": "2026-07-01",
+            },
+        )
+        response = auth_client.delete(f"/api/budgets/categories/{category_id}/")
+        assert response.status_code == 409
+        assert response.data["detail"] == "This category has transactions and cannot be deleted."
+        remaining = auth_client.get(f"/api/budgets/categories/?space_id={space_id}")
+        assert any(c["id"] == category_id for c in remaining.data)
