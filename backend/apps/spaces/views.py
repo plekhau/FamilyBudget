@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import Space, SpaceInvite, SpaceMembership
-from .permissions import IsSpaceOwner
+from .permissions import IsSpaceOwner, IsSpaceOwnerOrAdmin
 from .serializers import AcceptInviteSerializer, SpaceInviteSerializer, SpaceSerializer
 
 
@@ -23,8 +23,9 @@ class SpaceListCreateView(generics.ListCreateAPIView):
         )
 
 
-class SpaceDetailView(generics.RetrieveDestroyAPIView):
+class SpaceDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = SpaceSerializer
+    http_method_names = ["get", "patch", "delete", "head", "options"]
 
     def get_queryset(self):
         return Space.objects.filter(memberships__user=self.request.user).prefetch_related("memberships__user")
@@ -38,6 +39,8 @@ class SpaceDetailView(generics.RetrieveDestroyAPIView):
     def get_permissions(self):
         if self.request.method == "DELETE":
             return [permissions.IsAuthenticated(), IsSpaceOwner()]
+        if self.request.method == "PATCH":
+            return [permissions.IsAuthenticated(), IsSpaceOwnerOrAdmin()]
         return [permissions.IsAuthenticated()]
 
 
