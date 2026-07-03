@@ -14,6 +14,9 @@ const AcceptInvitePage = lazy(() =>
 const TransactionsPage = lazy(() =>
   import('@/features/budget/TransactionsPage').then((m) => ({ default: m.TransactionsPage }))
 )
+const CategoriesPage = lazy(() =>
+  import('@/features/budget/CategoriesPage').then((m) => ({ default: m.CategoriesPage }))
+)
 
 const Loader = () => <div className="flex min-h-screen items-center justify-center text-muted-foreground">Loading…</div>
 
@@ -63,7 +66,14 @@ export const router = createBrowserRouter([
               </Suspense>
             ),
           },
-          { path: '/budget/categories', element: <ComingSoon title="Categories" /> },
+          {
+            path: '/budget/categories',
+            element: (
+              <Suspense fallback={<Loader />}>
+                <CategoriesPage />
+              </Suspense>
+            ),
+          },
           { path: '/budget/recurring', element: <ComingSoon title="Recurring" /> },
           { path: '/budget/reports', element: <ComingSoon title="Reports" /> },
           {
