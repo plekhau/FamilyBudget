@@ -11,6 +11,9 @@ const SpacesPage = lazy(() => import('@/features/spaces/SpacesPage').then((m) =>
 const AcceptInvitePage = lazy(() =>
   import('@/features/spaces/AcceptInvitePage').then((m) => ({ default: m.AcceptInvitePage }))
 )
+const TransactionsPage = lazy(() =>
+  import('@/features/budget/TransactionsPage').then((m) => ({ default: m.TransactionsPage }))
+)
 
 const Loader = () => <div className="flex min-h-screen items-center justify-center text-muted-foreground">Loading…</div>
 
@@ -52,7 +55,14 @@ export const router = createBrowserRouter([
           { index: true, element: <Navigate to="/settings" replace /> },
           { path: '/dashboard', element: <ComingSoon title="Dashboard" /> },
           { path: '/budget', element: <Navigate to="/budget/transactions" replace /> },
-          { path: '/budget/transactions', element: <ComingSoon title="Transactions" /> },
+          {
+            path: '/budget/transactions',
+            element: (
+              <Suspense fallback={<Loader />}>
+                <TransactionsPage />
+              </Suspense>
+            ),
+          },
           { path: '/budget/categories', element: <ComingSoon title="Categories" /> },
           { path: '/budget/recurring', element: <ComingSoon title="Recurring" /> },
           { path: '/budget/reports', element: <ComingSoon title="Reports" /> },
