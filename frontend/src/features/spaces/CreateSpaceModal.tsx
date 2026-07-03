@@ -10,8 +10,10 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { NativeSelect } from '@/components/ui/native-select'
 import { toast } from 'sonner'
 import { useCreateSpace } from '@/hooks/useSpaces'
+import { CURRENCIES, defaultCurrencyForLocale } from '@/lib/currencies'
 
 interface Props {
   open: boolean
@@ -20,13 +22,14 @@ interface Props {
 
 export function CreateSpaceModal({ open, onClose }: Props) {
   const [name, setName] = useState('')
+  const [currency, setCurrency] = useState(() => defaultCurrencyForLocale())
   const createSpace = useCreateSpace()
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!name.trim()) return
     createSpace.mutate(
-      { name: name.trim(), currency: 'USD' },
+      { name: name.trim(), currency },
       {
         onSuccess: () => {
           setName('')
@@ -65,6 +68,19 @@ export function CreateSpaceModal({ open, onClose }: Props) {
               onChange={(e) => setName(e.target.value)}
               autoFocus
             />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="space-currency">Currency</Label>
+            <NativeSelect id="space-currency" value={currency} onChange={(e) => setCurrency(e.target.value)}>
+              {CURRENCIES.map((c) => (
+                <option key={c.code} value={c.code}>
+                  {c.symbol} {c.name}
+                </option>
+              ))}
+            </NativeSelect>
+            <p className="text-xs text-muted-foreground">
+              Guessed from your browser language — change it if it&apos;s wrong.
+            </p>
           </div>
         </form>
 
