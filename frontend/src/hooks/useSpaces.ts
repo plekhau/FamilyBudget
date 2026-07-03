@@ -71,3 +71,15 @@ export function useAcceptInvite() {
     },
   })
 }
+
+export function useUpdateSpace() {
+  const qc = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ id, ...data }: { id: number; name?: string; currency?: string }) =>
+      api.patch<Space>(`/api/spaces/${id}/`, data).then((r) => r.data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['spaces'] })
+    },
+  })
+}

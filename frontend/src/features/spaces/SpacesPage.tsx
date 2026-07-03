@@ -1,12 +1,22 @@
 import { useState, useEffect } from 'react'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { AvatarInitials } from '@/components/ui/avatar-initials'
+import { NativeSelect } from '@/components/ui/native-select'
 import { cn } from '@/lib/utils'
-import { useSpaces, useCreateInvite, useDeleteSpace, type Space, type SpaceMember } from '@/hooks/useSpaces'
+import { CURRENCIES } from '@/lib/currencies'
+import {
+  useSpaces,
+  useCreateInvite,
+  useDeleteSpace,
+  useUpdateSpace,
+  type Space,
+  type SpaceMember,
+} from '@/hooks/useSpaces'
 import { useSpaceStore } from '@/store/spaceStore'
 import { useAuthStore } from '@/store/authStore'
 import { CreateSpaceModal } from './CreateSpaceModal'
@@ -94,6 +104,51 @@ function InviteCard({ spaceId }: { spaceId: number }) {
             <p className="text-xs text-muted-foreground">This link expires in 7 days.</p>
           </div>
         )}
+      </CardContent>
+    </Card>
+  )
+}
+
+function SpaceSettingsCard({ space }: { space: Space }) {
+  const [currency, setCurrency] = useState(space.currency)
+  const updateSpace = useUpdateSpace()
+
+  const handleSave = () => {
+    updateSpace.mutate(
+      { id: space.id, currency },
+      {
+        onSuccess: () => toast.success('Space settings saved'),
+        onError: () => toast.error('Failed to save space settings. Please try again.'),
+      }
+    )
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+          Space Settings
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-2">
+        <div className="flex items-end gap-2">
+          <div className="flex-1 space-y-2">
+            <Label htmlFor="settings-currency">Currency</Label>
+            <NativeSelect id="settings-currency" value={currency} onChange={(e) => setCurrency(e.target.value)}>
+              {CURRENCIES.map((c) => (
+                <option key={c.code} value={c.code}>
+                  {c.symbol} {c.name}
+                </option>
+              ))}
+            </NativeSelect>
+          </div>
+          <Button onClick={handleSave} disabled={currency === space.currency || updateSpace.isPending}>
+            {updateSpace.isPending ? 'Saving…' : 'Save'}
+          </Button>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Changes how amounts are displayed for everyone in this space. Existing amounts are not converted.
+        </p>
       </CardContent>
     </Card>
   )
@@ -189,6 +244,7 @@ export function SpacesPage() {
   const selectedSpace = spaces.find((s) => s.id === selectedSpaceId) ?? null
   const currentMembership = selectedSpace?.members.find((m) => m.user.id === currentUser?.id)
   const isOwner = currentMembership?.role === 'owner'
+  const isOwnerOrAdmin = currentMembership?.role === 'owner' || currentMembership?.role === 'admin'
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
@@ -249,6 +305,8 @@ export function SpacesPage() {
           </Card>
 
           <InviteCard key={`invite-${selectedSpace.id}`} spaceId={selectedSpace.id} />
+
+          {isOwnerOrAdmin && <SpaceSettingsCard key={`settings-${selectedSpace.id}`} space={selectedSpace} />}
 
           {isOwner && <DangerZoneCard key={`danger-${selectedSpace.id}`} space={selectedSpace} />}
         </>

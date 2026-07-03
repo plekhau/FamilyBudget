@@ -207,4 +207,61 @@ describe('SpacesPage', () => {
     await userEvent.click(screen.getByRole('button', { name: /copy/i }))
     expect(await screen.findByText(/copied!/i)).toBeInTheDocument()
   })
+
+  it('shows the space settings card to the owner', async () => {
+    /** Owners see the Space Settings card with a currency select. */
+    renderSpaces()
+    await screen.findByText('Home Budget')
+    expect(screen.getByText(/space settings/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/currency/i)).toBeInTheDocument()
+  })
+
+  it('hides the space settings card from plain members', async () => {
+    /** Members must not see the settings card. */
+    server.use(
+      http.get(`${BASE}/api/spaces/`, () =>
+        HttpResponse.json([
+          {
+            id: 1,
+            name: 'Home Budget',
+            currency: 'USD',
+            created_at: '2026-01-01T00:00:00Z',
+            members: [
+              {
+                id: 1,
+                user: { id: 1, email: 'test@example.com', display_name: 'Test User' },
+                role: 'member',
+                joined_at: '2026-01-01T00:00:00Z',
+              },
+            ],
+          },
+        ])
+      )
+    )
+    renderSpaces()
+    await screen.findByText('Home Budget')
+    expect(screen.queryByText(/space settings/i)).not.toBeInTheDocument()
+  })
+
+  it('saves a currency change via PATCH', async () => {
+    /** Picking a currency and clicking Save PATCHes the space. */
+    let patched: { currency?: string } = {}
+    server.use(
+      http.patch(`${BASE}/api/spaces/:id/`, async ({ request }) => {
+        patched = (await request.json()) as typeof patched
+        return HttpResponse.json({
+          id: 1,
+          name: 'Home Budget',
+          currency: patched.currency,
+          created_at: '2026-01-01T00:00:00Z',
+          members: [],
+        })
+      })
+    )
+    renderSpaces()
+    await screen.findByText('Home Budget')
+    await userEvent.selectOptions(screen.getByLabelText(/currency/i), 'EUR')
+    await userEvent.click(screen.getByRole('button', { name: /^save$/i }))
+    await waitFor(() => expect(patched).toEqual({ currency: 'EUR' }))
+  })
 })
