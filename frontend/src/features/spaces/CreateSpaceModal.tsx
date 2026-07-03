@@ -26,7 +26,7 @@ export function CreateSpaceModal({ open, onClose }: Props) {
     e.preventDefault()
     if (!name.trim()) return
     createSpace.mutate(
-      { name: name.trim() },
+      { name: name.trim(), currency: 'USD' },
       {
         onSuccess: () => {
           setName('')

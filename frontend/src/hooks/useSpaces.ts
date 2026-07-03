@@ -13,6 +13,7 @@ export interface SpaceMember {
 export interface Space {
   id: number
   name: string
+  currency: string
   created_at: string
   members: SpaceMember[]
 }
@@ -29,7 +30,7 @@ export function useCreateSpace() {
   const { setSelectedSpaceId } = useSpaceStore()
 
   return useMutation({
-    mutationFn: (data: { name: string }) => api.post<Space>('/api/spaces/', data).then((r) => r.data),
+    mutationFn: (data: { name: string; currency: string }) => api.post<Space>('/api/spaces/', data).then((r) => r.data),
     onSuccess: (space) => {
       setSelectedSpaceId(space.id)
       qc.invalidateQueries({ queryKey: ['spaces'] })
