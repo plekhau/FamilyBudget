@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { http, HttpResponse } from 'msw'
+import { Toaster } from 'sonner'
 import { server } from '@/mocks/server'
 import { CategoriesPage } from '../CategoriesPage'
 import { useAuthStore } from '@/store/authStore'
@@ -25,6 +26,7 @@ function renderPage() {
       <MemoryRouter>
         <CategoriesPage />
       </MemoryRouter>
+      <Toaster />
     </QueryClientProvider>
   )
 }

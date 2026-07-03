@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Pencil, Plus, Trash2 } from 'lucide-react'
-import { toast, Toaster } from 'sonner'
+import { toast } from 'sonner'
 import { isAxiosError } from 'axios'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -133,44 +133,41 @@ export function CategoriesPage() {
   }
 
   return (
-    <>
-      <Toaster richColors position="top-right" />
-      <div className="mx-auto max-w-2xl space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold">Categories</h1>
-            <p className="text-sm text-muted-foreground">Organize spending and income in {space.name}</p>
-          </div>
-          <Button onClick={() => setDialogOpen(true)}>
-            <Plus className="h-4 w-4" /> Add category
-          </Button>
+    <div className="mx-auto max-w-2xl space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold">Categories</h1>
+          <p className="text-sm text-muted-foreground">Organize spending and income in {space.name}</p>
         </div>
-
-        <CategorySection
-          title="Expenses"
-          categories={categories.filter((c) => !c.is_income)}
-          onEdit={setEditing}
-          onDelete={handleDelete}
-          deleting={deleteCategory.isPending}
-        />
-        <CategorySection
-          title="Income"
-          categories={categories.filter((c) => c.is_income)}
-          onEdit={setEditing}
-          onDelete={handleDelete}
-          deleting={deleteCategory.isPending}
-        />
-
-        <CategoryDialog
-          open={dialogOpen || editing !== null}
-          category={editing}
-          spaceId={space.id}
-          onClose={() => {
-            setDialogOpen(false)
-            setEditing(null)
-          }}
-        />
+        <Button onClick={() => setDialogOpen(true)}>
+          <Plus className="h-4 w-4" /> Add category
+        </Button>
       </div>
-    </>
+
+      <CategorySection
+        title="Expenses"
+        categories={categories.filter((c) => !c.is_income)}
+        onEdit={setEditing}
+        onDelete={handleDelete}
+        deleting={deleteCategory.isPending}
+      />
+      <CategorySection
+        title="Income"
+        categories={categories.filter((c) => c.is_income)}
+        onEdit={setEditing}
+        onDelete={handleDelete}
+        deleting={deleteCategory.isPending}
+      />
+
+      <CategoryDialog
+        open={dialogOpen || editing !== null}
+        category={editing}
+        spaceId={space.id}
+        onClose={() => {
+          setDialogOpen(false)
+          setEditing(null)
+        }}
+      />
+    </div>
   )
 }
