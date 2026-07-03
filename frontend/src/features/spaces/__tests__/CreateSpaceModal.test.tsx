@@ -24,6 +24,10 @@ function renderModal() {
 }
 
 describe('CreateSpaceModal currency', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
   it('pre-selects the currency guessed from the browser locale', async () => {
     /** The currency select defaults to the locale-derived code. */
     vi.spyOn(currencies, 'defaultCurrencyForLocale').mockReturnValue('EUR')
