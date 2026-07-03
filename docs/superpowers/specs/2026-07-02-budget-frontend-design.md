@@ -107,7 +107,7 @@ The everyday page. Layout top to bottom:
 - Smart defaults on add: date = today, payer = current user, category = last-used category (persisted in `localStorage` per space; falls back to first expense category).
 - Edit mode: same dialog pre-filled, plus a Delete button with inline confirm.
 - Validation (Zod): amount required, positive, ≤ 2 decimals; category and date required. Form has `noValidate`.
-- Mutations: `POST/PUT/DELETE /api/budgets/transactions/…` (`space_id` in body on create). Success closes dialog + `toast.success`; error `toast.error`.
+- Mutations: `POST/PATCH/DELETE /api/budgets/transactions/…` (`space_id` in body on create). Success closes dialog + `toast.success`; error `toast.error`.
 
 ### 2. Categories (`/budget/categories`)
 
@@ -144,9 +144,9 @@ Single list card. Each row: category icon, description, muted "frequency · next
 Add to `src/mocks/handlers.ts`:
 
 ```
-GET/POST        /api/budgets/categories/            (+ PUT/DELETE /:id/, DELETE can return 409)
-GET/POST        /api/budgets/transactions/          (+ PUT/DELETE /:id/)
-GET/POST        /api/budgets/recurring-transactions/ (+ PUT/DELETE /:id/)
+GET/POST        /api/budgets/categories/            (+ PATCH/DELETE /:id/, DELETE can return 409)
+GET/POST        /api/budgets/transactions/          (+ PATCH/DELETE /:id/)
+GET/POST        /api/budgets/recurring-transactions/ (+ PATCH/DELETE /:id/)
 GET             /api/budgets/reports/:reportType/
 PATCH           /api/spaces/:id/
 ```
