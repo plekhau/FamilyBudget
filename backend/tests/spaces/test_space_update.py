@@ -1,7 +1,7 @@
 import pytest
 
 from apps.accounts.models import User
-from apps.spaces.models import Space, SpaceMembership
+from apps.spaces.models import SpaceMembership
 
 
 @pytest.mark.django_db

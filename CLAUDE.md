@@ -79,6 +79,7 @@ pnpm format:check
 
 - **`src/features/auth/`** — LoginPage, RegisterPage. Forms use React Hook Form + Zod v4 via `standardSchemaResolver` from `@hookform/resolvers/standard-schema`. Always add `noValidate` to forms with `type="email"` inputs — JSDOM/browsers block submit via native constraint validation otherwise.
 - **`src/features/settings/`** — SettingsPage: profile edit, read-only email, theme picker, sign out.
+- **`src/features/budget/`** — TransactionsPage (month view grouped by day), CategoriesPage, RecurringPage, ReportsPage (Recharts donut). All scoped to `spaceStore.selectedSpaceId` via `useSelectedSpace`; `NoSpaceState` renders when the user has no space. Amounts formatted with `src/lib/money.ts` (`Intl.NumberFormat`, `narrowSymbol`) using the space's `currency`.
 - **`src/components/layout/`** — AppShell (desktop sidebar + mobile header), PrimaryRail (icon nav), ContextPanel (sub-nav per section), MobileDrawer.
 - **`src/store/authStore.ts`** — Zustand store. Access token held in memory only; refresh token + user persisted via `partialize`.
 - **`src/store/themeStore.ts`** — Theme preference (`light`/`dark`/`system`), persisted.
@@ -122,7 +123,9 @@ Custom DRF permissions in `apps/spaces/permissions.py` (`IsSpaceMember`, `IsSpac
 All endpoints require JWT authentication. Reports are at `/api/budgets/reports/<report_type>/` with `?space_id=&month=` (or `week=`/`year=`) params.
 
 `GET /api/auth/me/` — returns `{ id, email, display_name }` for the authenticated user.  
-`PATCH /api/auth/me/` — updates `display_name` (email is read-only).
+`PATCH /api/auth/me/` — updates `display_name` (email is read-only).  
+`PATCH /api/spaces/{id}/` — owner/admin updates space settings (`name`, `currency`). Spaces carry a `currency` ISO code (default `USD`) chosen at creation.  
+`DELETE /api/budgets/categories/{id}/` — returns `409` if the category has transactions.
 
 ### Tests
 
