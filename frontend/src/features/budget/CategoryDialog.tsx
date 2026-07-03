@@ -1,4 +1,4 @@
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { standardSchemaResolver as zodResolver } from '@hookform/resolvers/standard-schema'
 import { z } from 'zod'
 import { toast } from 'sonner'
@@ -40,7 +40,7 @@ export function CategoryDialog({ open, category, spaceId, onClose }: Props) {
     formState: { errors },
     reset,
     setValue,
-    watch,
+    control,
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     values: {
@@ -49,7 +49,7 @@ export function CategoryDialog({ open, category, spaceId, onClose }: Props) {
       is_income: category?.is_income ?? false,
     },
   })
-  const isIncome = watch('is_income')
+  const isIncome = useWatch({ control, name: 'is_income' })
   const isPending = createCategory.isPending || updateCategory.isPending
 
   const close = () => {
