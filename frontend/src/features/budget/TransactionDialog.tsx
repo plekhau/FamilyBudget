@@ -20,9 +20,11 @@ import { useCreateTransaction, useUpdateTransaction, useDeleteTransaction } from
 import type { Category, Transaction } from '@/hooks/useBudget'
 import type { Space } from '@/hooks/useSpaces'
 import { getLastCategoryId, setLastCategoryId } from './lastCategory'
+import { currencySymbol } from '@/lib/money'
+import { spaceLocale } from '@/lib/locale'
 
 const schema = z.object({
-  amount: z.string().regex(/^\d+(\.\d{1,2})?$/, 'Enter a positive amount'),
+  amount: z.string().regex(/^\d+([.,]\d{1,2})?$/, 'Enter a positive amount, e.g. 12.50'),
   category: z.string().min(1, 'Category is required'),
   date: z.string().min(1, 'Date is required'),
   paid_by: z.string().min(1),
@@ -74,7 +76,7 @@ export function TransactionDialog({ open, transaction, space, categories, onClos
   const onSubmit = (data: FormData) => {
     const payload = {
       category: Number(data.category),
-      amount: data.amount,
+      amount: data.amount.replace(',', '.'),
       date: data.date,
       paid_by: Number(data.paid_by),
       notes: data.notes,
@@ -122,7 +124,7 @@ export function TransactionDialog({ open, transaction, space, categories, onClos
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 py-2" noValidate>
           <div className="space-y-2">
-            <Label htmlFor="tx-amount">Amount</Label>
+            <Label htmlFor="tx-amount">Amount ({currencySymbol(space.currency, spaceLocale(space))})</Label>
             <Input id="tx-amount" inputMode="decimal" placeholder="0.00" autoFocus {...register('amount')} />
             {errors.amount && <p className="text-sm text-destructive">{errors.amount.message}</p>}
           </div>

@@ -151,4 +151,34 @@ describe('TransactionDialog', () => {
     await waitFor(() => expect(onClose).toHaveBeenCalled())
     expect(deleted).toBe(true)
   })
+
+  it('accepts a comma as the decimal separator and submits a dot', async () => {
+    /** Typing 12,50 passes validation and the payload carries amount "12.50". */
+    const bodies: Record<string, unknown>[] = []
+    server.use(
+      http.post(`${BASE}/api/budgets/transactions/`, async ({ request }) => {
+        const body = (await request.json()) as Record<string, unknown>
+        bodies.push(body)
+        return HttpResponse.json({ id: 99, ...body }, { status: 201 })
+      })
+    )
+    renderDialog()
+    await userEvent.type(screen.getByLabelText(/amount/i), '12,50')
+    await userEvent.click(screen.getByRole('button', { name: /^save$/i }))
+    await waitFor(() => expect(bodies[0]).toMatchObject({ amount: '12.50' }))
+  })
+
+  it('rejects malformed amounts with the example message', async () => {
+    /** "12,5,0" fails validation with the e.g. 12.50 hint. */
+    renderDialog()
+    await userEvent.type(screen.getByLabelText(/amount/i), '12,5,0')
+    await userEvent.click(screen.getByRole('button', { name: /^save$/i }))
+    expect(await screen.findByText('Enter a positive amount, e.g. 12.50')).toBeInTheDocument()
+  })
+
+  it('shows the space currency symbol in the amount label', async () => {
+    /** The label reads "Amount ($)" for a USD space. */
+    renderDialog()
+    expect(screen.getByText('Amount ($)')).toBeInTheDocument()
+  })
 })

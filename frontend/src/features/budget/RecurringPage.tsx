@@ -99,7 +99,7 @@ export function RecurringPage() {
       <RecurringDialog
         open={dialogOpen || editing !== null}
         recurring={editing}
-        spaceId={space.id}
+        space={space}
         categories={categories}
         onClose={() => {
           setDialogOpen(false)

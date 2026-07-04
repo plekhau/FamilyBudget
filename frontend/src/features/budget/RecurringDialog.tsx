@@ -22,10 +22,13 @@ import {
   type Category,
   type RecurringTransaction,
 } from '@/hooks/useBudget'
+import type { Space } from '@/hooks/useSpaces'
 import { formatDayHeading } from '@/lib/dates'
+import { currencySymbol } from '@/lib/money'
+import { spaceLocale } from '@/lib/locale'
 
 const schema = z.object({
-  amount: z.string().regex(/^\d+(\.\d{1,2})?$/, 'Enter a positive amount'),
+  amount: z.string().regex(/^\d+([.,]\d{1,2})?$/, 'Enter a positive amount, e.g. 12.50'),
   category: z.string().min(1, 'Category is required'),
   description: z.string().min(1, 'Description is required'),
   frequency: z.enum(['weekly', 'monthly', 'yearly']),
@@ -36,16 +39,16 @@ type FormData = z.infer<typeof schema>
 interface Props {
   open: boolean
   recurring: RecurringTransaction | null
-  spaceId: number
+  space: Space
   categories: Category[]
   onClose: () => void
 }
 
-export function RecurringDialog({ open, recurring, spaceId, categories, onClose }: Props) {
+export function RecurringDialog({ open, recurring, space, categories, onClose }: Props) {
   const [confirmingDelete, setConfirmingDelete] = useState(false)
-  const createRecurring = useCreateRecurring(spaceId)
-  const updateRecurring = useUpdateRecurring(spaceId)
-  const deleteRecurring = useDeleteRecurring(spaceId)
+  const createRecurring = useCreateRecurring(space.id)
+  const updateRecurring = useUpdateRecurring(space.id)
+  const deleteRecurring = useDeleteRecurring(space.id)
 
   const {
     register,
@@ -81,7 +84,7 @@ export function RecurringDialog({ open, recurring, spaceId, categories, onClose 
     }
     const payload = {
       category: Number(data.category),
-      amount: data.amount,
+      amount: data.amount.replace(',', '.'),
       description: data.description,
       frequency: data.frequency,
       start_date: data.start_date,
@@ -122,7 +125,7 @@ export function RecurringDialog({ open, recurring, spaceId, categories, onClose 
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="rec-amount">Amount</Label>
+              <Label htmlFor="rec-amount">Amount ({currencySymbol(space.currency, spaceLocale(space))})</Label>
               <Input id="rec-amount" inputMode="decimal" placeholder="0.00" {...register('amount')} />
               {errors.amount && <p className="text-sm text-destructive">{errors.amount.message}</p>}
             </div>
@@ -153,7 +156,9 @@ export function RecurringDialog({ open, recurring, spaceId, categories, onClose 
             </div>
           </div>
           {recurring && (
-            <p className="text-xs text-muted-foreground">Next due: {formatDayHeading(recurring.next_due_date)}</p>
+            <p className="text-xs text-muted-foreground">
+              Next due: {formatDayHeading(recurring.next_due_date, spaceLocale(space))}
+            </p>
           )}
 
           <DialogFooter className="gap-2 sm:justify-between">
