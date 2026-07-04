@@ -14,6 +14,7 @@ Current state of the project at a glance. **Update this file whenever a phase co
 | Nav icon resize | [2026-05-12 nav icon design](superpowers/specs/2026-05-12-nav-icon-resize-design.md) | 2026-05 |
 | GitHub Actions CI — backend + frontend test/lint jobs, path-filtered | [2026-06-16 CI design](superpowers/specs/2026-06-16-github-actions-ci-design.md) | 2026-06 |
 | Budget section + per-space currency — Transactions, Categories, Recurring, Reports pages; `Space.currency`, `PATCH /api/spaces/{id}/`, category-delete 409 | [2026-07-02 budget design](superpowers/specs/2026-07-02-budget-frontend-design.md) | 2026-07 |
+| Budget section UX polish — totals, chart legend, locale setting, comma amounts, Today button | [2026-07-03 budget UX improvements design](superpowers/specs/2026-07-03-budget-ux-improvements-design.md) | 2026-07 |
 
 ## Next up (no spec yet)
 
