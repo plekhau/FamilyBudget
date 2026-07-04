@@ -73,6 +73,6 @@ describe('locale-aware formatting', () => {
 
   it('formats week ranges in the given locale', () => {
     /** formatWeekRange uses localized month names. */
-    expect(formatWeekRange('2026-06-29', 'de-DE')).toMatch(/Juli 2026/)
+    expect(formatWeekRange('2026-06-29', 'de-DE')).toBe('29 Juni – 5 Juli 2026')
   })
 })

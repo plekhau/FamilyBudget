@@ -52,19 +52,24 @@ export function stepWeek(weekStart: string, delta: number): string {
   return toISODate(new Date(toUTC(weekStart).getTime() + delta * 7 * DAY_MS))
 }
 
+function monthName(date: Date, locale: string): string {
+  return (
+    new Intl.DateTimeFormat(locale, { month: 'short', day: 'numeric', timeZone: 'UTC' })
+      .formatToParts(date)
+      .find((p) => p.type === 'month')?.value ?? ''
+  )
+}
+
 export function formatWeekRange(weekStart: string, locale = 'en-US'): string {
   const start = toUTC(weekStart)
   const end = new Date(start.getTime() + 6 * DAY_MS)
   const opts = { timeZone: 'UTC' } as const
   const year = end.toLocaleDateString(locale, { year: 'numeric', ...opts })
   if (start.getUTCMonth() === end.getUTCMonth()) {
-    const fullDate = end.toLocaleDateString(locale, { month: 'short', day: 'numeric', ...opts })
-    const month = fullDate.replace(/\d+\s*/, '').trim()
+    const month = monthName(end, locale)
     return `${start.getUTCDate()}–${end.getUTCDate()} ${month} ${year}`
   }
-  const startFull = start.toLocaleDateString(locale, { month: 'short', day: 'numeric', ...opts })
-  const endFull = end.toLocaleDateString(locale, { month: 'short', day: 'numeric', ...opts })
-  const startMonth = startFull.replace(/\d+\s*/, '').trim()
-  const endMonth = endFull.replace(/\d+\s*/, '').trim()
+  const startMonth = monthName(start, locale)
+  const endMonth = monthName(end, locale)
   return `${start.getUTCDate()} ${startMonth} – ${end.getUTCDate()} ${endMonth} ${year}`
 }
