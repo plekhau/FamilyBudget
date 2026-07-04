@@ -97,4 +97,51 @@ describe('ReportsPage', () => {
     await userEvent.click(await screen.findByRole('button', { name: /today/i }))
     expect(screen.queryByRole('button', { name: /today/i })).not.toBeInTheDocument()
   })
+
+  it('sorts the expense legend by amount descending with color swatches', async () => {
+    /** Legend order follows totals (Groceries 84.20 before Dining Out 32.50) and each row has a swatch. */
+    renderPage()
+    await screen.findByText(/expenses by category/i)
+    const rows = screen.getAllByTestId('legend-row')
+    expect(rows[0]).toHaveTextContent('Groceries')
+    expect(rows[1]).toHaveTextContent('Dining Out')
+    const swatches = screen.getAllByTestId('legend-swatch')
+    expect(swatches).toHaveLength(rows.length)
+    expect(swatches[0]).toHaveStyle({ backgroundColor: '#6366f1' })
+  })
+
+  it('groups categories beyond twelve into a gray Other slice', async () => {
+    /** With 14 expense categories, legend rows 12+ carry the reserved gray swatch. */
+    const manyCategories = Array.from({ length: 14 }, (_, i) => ({
+      id: i + 10,
+      name: `Cat ${i + 1}`,
+      icon: '🔖',
+      is_income: false,
+    }))
+    const manyRows = manyCategories.map((c, i) => ({
+      category_id: c.id,
+      category_name: c.name,
+      category_icon: c.icon,
+      total: String(1400 - i * 100),
+    }))
+    server.use(
+      http.get(`${BASE}/api/budgets/categories/`, () => HttpResponse.json(manyCategories)),
+      http.get(`${BASE}/api/budgets/reports/:reportType/`, () => HttpResponse.json(manyRows))
+    )
+    renderPage()
+    await screen.findByText(/expenses by category/i)
+    const swatches = screen.getAllByTestId('legend-swatch')
+    expect(swatches).toHaveLength(14)
+    expect(swatches[10]).not.toHaveStyle({ backgroundColor: '#9ca3af' })
+    expect(swatches[11]).toHaveStyle({ backgroundColor: '#9ca3af' })
+    expect(swatches[13]).toHaveStyle({ backgroundColor: '#9ca3af' })
+  })
+
+  it('lays the summary cards out as a responsive grid', async () => {
+    /** The cards container uses grid-cols-1 sm:grid-cols-3. */
+    renderPage()
+    await screen.findByText(/expenses by category/i)
+    const grid = screen.getByTestId('summary-cards')
+    expect(grid).toHaveClass('grid-cols-1', 'sm:grid-cols-3')
+  })
 })

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { PieChart, Pie, Cell } from 'recharts'
+import { PieChart, Pie, Cell, Tooltip } from 'recharts'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -13,7 +13,22 @@ import { useCategories, useReport, type ReportPeriodType, type ReportRow } from 
 import { useSelectedSpace } from './useSelectedSpace'
 import { NoSpaceState } from './NoSpaceState'
 
-const CHART_COLORS = ['#6366f1', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#14b8a6', '#f97316', '#64748b']
+const CHART_COLORS = [
+  '#6366f1',
+  '#f59e0b',
+  '#10b981',
+  '#ef4444',
+  '#8b5cf6',
+  '#14b8a6',
+  '#f97316',
+  '#ec4899',
+  '#06b6d4',
+  '#84cc16',
+  '#f43f5e',
+  '#0ea5e9',
+]
+const OTHER_COLOR = '#9ca3af'
+const MAX_SLICES = 12
 
 function usePeriod(locale = 'en-US') {
   const [type, setType] = useState<ReportPeriodType>('month')
@@ -48,10 +63,10 @@ function usePeriod(locale = 'en-US') {
 
 function SummaryCard({ title, value, className }: { title: string; value: string; className?: string }) {
   return (
-    <Card className="flex-1">
-      <CardContent className="py-4 text-center">
+    <Card>
+      <CardContent className="flex items-center justify-between py-4 sm:flex-col sm:justify-center sm:text-center">
         <p className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">{title}</p>
-        <p className={cn('mt-1 text-lg font-bold', className)}>{value}</p>
+        <p className={cn('text-lg font-bold sm:mt-1', className)}>{value}</p>
       </CardContent>
     </Card>
   )
@@ -77,13 +92,24 @@ export function ReportsPage() {
 
   const locale = spaceLocale(space)
   const incomeCategoryIds = new Set(categories.filter((c) => c.is_income).map((c) => c.id))
-  const expenseRows: ReportRow[] = rows.filter((r) => !incomeCategoryIds.has(r.category_id))
+  const expenseRows: ReportRow[] = rows
+    .filter((r) => !incomeCategoryIds.has(r.category_id))
+    .sort((a, b) => Number(b.total) - Number(a.total))
   const incomeRows: ReportRow[] = rows.filter((r) => incomeCategoryIds.has(r.category_id))
   const expenseTotal = expenseRows.reduce((sum, r) => sum + Number(r.total), 0)
   const incomeTotal = incomeRows.reduce((sum, r) => sum + Number(r.total), 0)
   const net = incomeTotal - expenseTotal
 
-  const chartData = expenseRows.map((r) => ({ name: r.category_name, value: Number(r.total) }))
+  const grouped = expenseRows.length > MAX_SLICES
+  const allSlices = expenseRows.map((r) => ({ name: `${r.category_icon} ${r.category_name}`, value: Number(r.total) }))
+  const chartData = grouped
+    ? [
+        ...allSlices.slice(0, MAX_SLICES - 1),
+        { name: 'Other', value: allSlices.slice(MAX_SLICES - 1).reduce((sum, s) => sum + s.value, 0) },
+      ]
+    : allSlices
+  const sliceColor = (i: number) => (grouped && i === MAX_SLICES - 1 ? OTHER_COLOR : CHART_COLORS[i])
+  const legendColor = (i: number) => (grouped && i >= MAX_SLICES - 1 ? OTHER_COLOR : CHART_COLORS[i])
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
@@ -121,7 +147,7 @@ export function ReportsPage() {
         </Card>
       ) : (
         <>
-          <div className="flex gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3" data-testid="summary-cards">
             <SummaryCard
               title="Income"
               value={formatMoney(incomeTotal, space.currency, locale)}
@@ -146,14 +172,30 @@ export function ReportsPage() {
                 <PieChart width={220} height={220}>
                   <Pie data={chartData} dataKey="value" nameKey="name" innerRadius={60} outerRadius={100}>
                     {chartData.map((_, i) => (
-                      <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
+                      <Cell key={i} fill={sliceColor(i)} />
                     ))}
                   </Pie>
+                  <Tooltip
+                    formatter={(value: number, name: string) => [
+                      `${formatMoney(value, space.currency, locale)} (${expenseTotal > 0 ? Math.round((value / expenseTotal) * 100) : 0}%)`,
+                      name,
+                    ]}
+                  />
                 </PieChart>
                 <div className="w-full flex-1 space-y-1">
-                  {expenseRows.map((r) => (
-                    <div key={r.category_id} className="flex items-center justify-between py-1 text-sm">
-                      <span>
+                  {expenseRows.map((r, i) => (
+                    <div
+                      key={r.category_id}
+                      data-testid="legend-row"
+                      className="flex items-center justify-between py-1 text-sm"
+                    >
+                      <span className="flex items-center gap-2">
+                        <span
+                          data-testid="legend-swatch"
+                          aria-hidden="true"
+                          className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
+                          style={{ backgroundColor: legendColor(i) }}
+                        />
                         {r.category_icon} {r.category_name}
                       </span>
                       <span className="font-semibold">
