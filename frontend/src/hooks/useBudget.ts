@@ -6,6 +6,7 @@ export interface Category {
   name: string
   icon: string
   is_income: boolean
+  transaction_count: number
 }
 
 export interface Transaction {

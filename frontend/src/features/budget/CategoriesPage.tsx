@@ -25,9 +25,16 @@ function CategoryRow({
 
   return (
     <div className="flex items-center gap-3 py-2.5">
-      <p className="flex-1 text-sm font-medium">
-        {category.icon} {category.name}
-      </p>
+      <div className="flex-1">
+        <p className="text-sm font-medium">
+          {category.icon} {category.name}
+        </p>
+        {category.transaction_count > 0 && (
+          <p className="text-xs text-muted-foreground">
+            {category.transaction_count} transaction{category.transaction_count === 1 ? '' : 's'}
+          </p>
+        )}
+      </div>
       {confirming ? (
         <div className="flex gap-2">
           <Button
@@ -42,7 +49,7 @@ function CategoryRow({
             Confirm Delete
           </Button>
           <Button variant="outline" size="sm" onClick={() => setConfirming(false)}>
-            Keep
+            Cancel
           </Button>
         </div>
       ) : (

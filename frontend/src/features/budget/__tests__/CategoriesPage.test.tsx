@@ -97,4 +97,20 @@ describe('CategoriesPage', () => {
     await userEvent.click(screen.getByRole('button', { name: /confirm delete/i }))
     expect(await screen.findByText(/has transactions and cannot be deleted/i)).toBeInTheDocument()
   })
+
+  it('shows a transaction count on categories that have transactions', async () => {
+    /** Groceries (2 transactions) shows the hint; zero-count categories show none. */
+    renderPage()
+    expect(await screen.findByText('2 transactions')).toBeInTheDocument()
+    expect(screen.queryByText('0 transactions')).not.toBeInTheDocument()
+  })
+
+  it('uses Cancel to back out of a delete confirmation', async () => {
+    /** The inline confirmation offers Confirm Delete and Cancel. */
+    renderPage()
+    await userEvent.click(await screen.findByLabelText(/delete Groceries/i))
+    expect(screen.getByRole('button', { name: /confirm delete/i })).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: /^cancel$/i }))
+    expect(screen.queryByRole('button', { name: /confirm delete/i })).not.toBeInTheDocument()
+  })
 })

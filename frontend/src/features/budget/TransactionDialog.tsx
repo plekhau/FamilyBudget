@@ -178,7 +178,7 @@ export function TransactionDialog({ open, transaction, space, categories, onClos
                     Confirm Delete
                   </Button>
                   <Button type="button" variant="outline" onClick={() => setConfirmingDelete(false)}>
-                    Keep
+                    Cancel
                   </Button>
                 </div>
               ) : (

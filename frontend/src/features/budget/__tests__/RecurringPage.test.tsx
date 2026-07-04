@@ -94,4 +94,10 @@ describe('RecurringPage', () => {
     await userEvent.click(screen.getByRole('button', { name: /confirm delete/i }))
     await waitFor(() => expect(deleted).toBe(true))
   })
+
+  it('renders the frequency capitalized', async () => {
+    /** "monthly" from the API renders as "Monthly". */
+    renderPage()
+    expect(await screen.findByText(/Monthly ·/)).toBeInTheDocument()
+  })
 })

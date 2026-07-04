@@ -14,6 +14,12 @@ import { useSelectedSpace } from './useSelectedSpace'
 import { NoSpaceState } from './NoSpaceState'
 import { RecurringDialog } from './RecurringDialog'
 
+const FREQUENCY_LABELS: Record<RecurringTransaction['frequency'], string> = {
+  weekly: 'Weekly',
+  monthly: 'Monthly',
+  yearly: 'Yearly',
+}
+
 export function RecurringPage() {
   const { space, isLoading: spaceLoading } = useSelectedSpace()
   const { data: recurring = [], isLoading } = useRecurring(space?.id ?? null)
@@ -75,7 +81,7 @@ export function RecurringPage() {
                       {category?.icon} {item.description}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {item.frequency} ·{' '}
+                      {FREQUENCY_LABELS[item.frequency]} ·{' '}
                       {item.is_active ? `next: ${formatDayHeading(item.next_due_date, locale)}` : 'paused'}
                     </p>
                   </button>

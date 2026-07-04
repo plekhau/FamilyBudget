@@ -3,9 +3,9 @@ import { http, HttpResponse } from 'msw'
 const BASE = 'http://localhost:8000'
 
 export const mockCategories = [
-  { id: 1, name: 'Groceries', icon: '🛒', is_income: false },
-  { id: 2, name: 'Dining Out', icon: '🍽️', is_income: false },
-  { id: 3, name: 'Salary', icon: '💰', is_income: true },
+  { id: 1, name: 'Groceries', icon: '🛒', is_income: false, transaction_count: 2 },
+  { id: 2, name: 'Dining Out', icon: '🍽️', is_income: false, transaction_count: 0 },
+  { id: 3, name: 'Salary', icon: '💰', is_income: true, transaction_count: 0 },
 ]
 
 export const mockTransactions = [
@@ -172,11 +172,11 @@ export const handlers = [
   http.get(`${BASE}/api/budgets/categories/`, () => HttpResponse.json(mockCategories)),
   http.post(`${BASE}/api/budgets/categories/`, async ({ request }) => {
     const body = (await request.json()) as Record<string, unknown>
-    return HttpResponse.json({ id: 99, ...body }, { status: 201 })
+    return HttpResponse.json({ id: 99, transaction_count: 0, ...body }, { status: 201 })
   }),
   http.patch(`${BASE}/api/budgets/categories/:id/`, async ({ request, params }) => {
     const body = (await request.json()) as Record<string, unknown>
-    return HttpResponse.json({ id: Number(params.id), ...body })
+    return HttpResponse.json({ id: Number(params.id), transaction_count: 0, ...body })
   }),
   http.delete(`${BASE}/api/budgets/categories/:id/`, () => new HttpResponse(null, { status: 204 })),
 

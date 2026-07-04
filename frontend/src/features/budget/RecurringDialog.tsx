@@ -169,7 +169,7 @@ export function RecurringDialog({ open, recurring, space, categories, onClose }:
                     Confirm Delete
                   </Button>
                   <Button type="button" variant="outline" onClick={() => setConfirmingDelete(false)}>
-                    Keep
+                    Cancel
                   </Button>
                 </div>
               ) : (
