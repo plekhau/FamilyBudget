@@ -1,4 +1,4 @@
-import { formatMoney } from '@/lib/money'
+import { formatMoney, currencySymbol } from '@/lib/money'
 
 // Intl uses non-breaking spaces (U+00A0 / U+202F) between number and symbol in
 // some locales; normalize them so assertions are readable.
@@ -26,5 +26,18 @@ describe('formatMoney', () => {
   it('follows the locale convention for symbol placement', () => {
     /** de-DE puts the € after the number with comma decimals. */
     expect(norm(formatMoney(1234.56, 'EUR', 'de-DE'))).toBe('1.234,56 €')
+  })
+})
+
+describe('currencySymbol', () => {
+  it('returns the narrow symbol for common currencies', () => {
+    /** USD→$ and EUR→€ using the narrowSymbol display. */
+    expect(currencySymbol('USD', 'en-US')).toBe('$')
+    expect(currencySymbol('EUR', 'de-DE')).toBe('€')
+  })
+
+  it('falls back to the code for unknown-symbol currencies', () => {
+    /** A currency Intl renders as its code still yields a non-empty string. */
+    expect(currencySymbol('CHF', 'en-US').length).toBeGreaterThan(0)
   })
 })

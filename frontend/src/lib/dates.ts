@@ -22,17 +22,17 @@ export function stepMonth(month: string, delta: number): string {
   return `${year}-${String(mon).padStart(2, '0')}`
 }
 
-export function formatMonth(month: string): string {
+export function formatMonth(month: string, locale = 'en-US'): string {
   const [y, m] = month.split('-').map(Number)
-  return new Date(Date.UTC(y, m - 1, 1)).toLocaleDateString('en-US', {
+  return new Date(Date.UTC(y, m - 1, 1)).toLocaleDateString(locale, {
     month: 'long',
     year: 'numeric',
     timeZone: 'UTC',
   })
 }
 
-export function formatDayHeading(date: string): string {
-  return toUTC(date).toLocaleDateString('en-US', {
+export function formatDayHeading(date: string, locale = 'en-US'): string {
+  return toUTC(date).toLocaleDateString(locale, {
     weekday: 'short',
     month: 'short',
     day: 'numeric',
@@ -52,16 +52,19 @@ export function stepWeek(weekStart: string, delta: number): string {
   return toISODate(new Date(toUTC(weekStart).getTime() + delta * 7 * DAY_MS))
 }
 
-export function formatWeekRange(weekStart: string): string {
+export function formatWeekRange(weekStart: string, locale = 'en-US'): string {
   const start = toUTC(weekStart)
   const end = new Date(start.getTime() + 6 * DAY_MS)
   const opts = { timeZone: 'UTC' } as const
-  const year = end.toLocaleDateString('en-US', { year: 'numeric', ...opts })
+  const year = end.toLocaleDateString(locale, { year: 'numeric', ...opts })
   if (start.getUTCMonth() === end.getUTCMonth()) {
-    const month = end.toLocaleDateString('en-US', { month: 'short', ...opts })
+    const fullDate = end.toLocaleDateString(locale, { month: 'short', day: 'numeric', ...opts })
+    const month = fullDate.replace(/\d+\s*/, '').trim()
     return `${start.getUTCDate()}–${end.getUTCDate()} ${month} ${year}`
   }
-  const startLabel = `${start.getUTCDate()} ${start.toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' })}`
-  const endLabel = `${end.getUTCDate()} ${end.toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' })}`
-  return `${startLabel} – ${endLabel} ${year}`
+  const startFull = start.toLocaleDateString(locale, { month: 'short', day: 'numeric', ...opts })
+  const endFull = end.toLocaleDateString(locale, { month: 'short', day: 'numeric', ...opts })
+  const startMonth = startFull.replace(/\d+\s*/, '').trim()
+  const endMonth = endFull.replace(/\d+\s*/, '').trim()
+  return `${start.getUTCDate()} ${startMonth} – ${end.getUTCDate()} ${endMonth} ${year}`
 }

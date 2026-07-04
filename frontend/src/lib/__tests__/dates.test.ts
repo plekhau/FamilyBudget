@@ -57,3 +57,22 @@ describe('week helpers', () => {
     expect(formatWeekRange('2026-04-27')).toBe('27 Apr – 3 May 2026')
   })
 })
+
+describe('locale-aware formatting', () => {
+  it('formats the month heading in the given locale', () => {
+    /** formatMonth honors an explicit locale and defaults to en-US. */
+    expect(formatMonth('2026-07', 'de-DE')).toBe('Juli 2026')
+    expect(formatMonth('2026-07')).toBe('July 2026')
+  })
+
+  it('formats day headings in the given locale', () => {
+    /** formatDayHeading renders localized weekday/month names. */
+    expect(formatDayHeading('2026-07-06', 'de-DE')).toMatch(/Juli/)
+    expect(formatDayHeading('2026-07-06')).toBe('Mon, Jul 6')
+  })
+
+  it('formats week ranges in the given locale', () => {
+    /** formatWeekRange uses localized month names. */
+    expect(formatWeekRange('2026-06-29', 'de-DE')).toMatch(/Juli 2026/)
+  })
+})
