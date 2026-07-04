@@ -1,3 +1,4 @@
+from django.db.models import Count
 from django.db.models.deletion import ProtectedError
 from rest_framework import generics, status
 from rest_framework.exceptions import NotFound, PermissionDenied, ValidationError
@@ -30,7 +31,7 @@ class CategoryListCreateView(generics.ListCreateAPIView):
         if not space_id:
             raise ValidationError({"space_id": "This parameter is required."})
         space = get_space_for_user(space_id, self.request.user)
-        return Category.objects.filter(space=space)
+        return Category.objects.filter(space=space).annotate(transaction_count=Count("transactions"))
 
     def perform_create(self, serializer):
         space_id = self.request.data.get("space_id")

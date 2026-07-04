@@ -4,10 +4,16 @@ from .models import Category, RecurringTransaction, Transaction
 
 
 class CategorySerializer(serializers.ModelSerializer):
+    transaction_count = serializers.SerializerMethodField()
+
     class Meta:
         model = Category
-        fields = ("id", "name", "icon", "is_income")
+        fields = ("id", "name", "icon", "is_income", "transaction_count")
         read_only_fields = ("id",)
+
+    def get_transaction_count(self, obj):
+        count = getattr(obj, "transaction_count", None)
+        return count if count is not None else obj.transactions.count()
 
 
 class TransactionSerializer(serializers.ModelSerializer):

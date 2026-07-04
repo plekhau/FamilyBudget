@@ -116,3 +116,19 @@ class TestCategoryAPI:
         assert response.data["detail"] == "This category has transactions and cannot be deleted."
         remaining = auth_client.get(f"/api/budgets/categories/?space_id={space_id}")
         assert any(c["id"] == category_id for c in remaining.data)
+
+    def test_list_includes_transaction_count(self, auth_client, space_id):
+        """Each listed category carries transaction_count: 0 when unused, N after transactions exist."""
+        categories = auth_client.get(f"/api/budgets/categories/?space_id={space_id}").data
+        assert all(c["transaction_count"] == 0 for c in categories)
+        cat_id = categories[0]["id"]
+        me = auth_client.get("/api/auth/me/").data
+        for day in ("2026-07-01", "2026-07-02"):
+            response = auth_client.post(
+                "/api/budgets/transactions/",
+                {"space_id": space_id, "category": cat_id, "amount": "10.00", "date": day, "paid_by": me["id"], "notes": ""},
+            )
+            assert response.status_code == 201
+        categories = auth_client.get(f"/api/budgets/categories/?space_id={space_id}").data
+        by_id = {c["id"]: c["transaction_count"] for c in categories}
+        assert by_id[cat_id] == 2
