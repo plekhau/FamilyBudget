@@ -24,6 +24,28 @@ function groupByDay(transactions: Transaction[]): { date: string; items: Transac
   return groups
 }
 
+interface DayHeadingProps {
+  date: string
+  items: Transaction[]
+  locale: string
+  categoryById: Map<number, { is_income: boolean }>
+  space: { currency: string }
+}
+
+function DayHeading({ date, items, locale, categoryById, space }: DayHeadingProps) {
+  const isIncomeTx = (t: Transaction) => categoryById.get(t.category)?.is_income ?? false
+  const dayNet = items.reduce((sum, t) => sum + (isIncomeTx(t) ? Number(t.amount) : -Number(t.amount)), 0)
+
+  return (
+    <div className="mb-1 flex items-center justify-between text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+      <span>{formatDayHeading(date, locale)}</span>
+      <span data-testid={`day-total-${date}`} className={cn(dayNet > 0 && 'text-green-600 dark:text-green-400')}>
+        {dayNet > 0 ? `+${formatMoney(dayNet, space.currency, locale)}` : formatMoney(-dayNet, space.currency, locale)}
+      </span>
+    </div>
+  )
+}
+
 export function TransactionsPage() {
   const { space, isLoading: spaceLoading } = useSelectedSpace()
   const [month, setMonth] = useState(currentMonth())
@@ -51,6 +73,11 @@ export function TransactionsPage() {
   const categoryById = new Map(categories.map((c) => [c.id, c]))
   const memberById = new Map(space.members.map((m) => [m.user.id, m.user.display_name]))
   const groups = groupByDay(transactions)
+
+  const isIncomeTx = (t: Transaction) => categoryById.get(t.category)?.is_income ?? false
+  const monthIncome = transactions.filter(isIncomeTx).reduce((sum, t) => sum + Number(t.amount), 0)
+  const monthExpenses = transactions.filter((t) => !isIncomeTx(t)).reduce((sum, t) => sum + Number(t.amount), 0)
+  const monthNet = monthIncome - monthExpenses
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
@@ -102,11 +129,30 @@ export function TransactionsPage() {
         </Card>
       ) : (
         <div className="space-y-4">
+          <p className="text-sm" data-testid="month-summary">
+            <span className="text-green-600 dark:text-green-400">
+              Income +{formatMoney(monthIncome, space.currency, locale)}
+            </span>
+            <span className="text-muted-foreground">
+              {' '}
+              · Spent {formatMoney(monthExpenses, space.currency, locale)} · Net{' '}
+            </span>
+            <span
+              className={cn('font-semibold', monthNet >= 0 ? 'text-green-600 dark:text-green-400' : 'text-destructive')}
+            >
+              {monthNet >= 0 ? '+' : ''}
+              {formatMoney(monthNet, space.currency, locale)}
+            </span>
+          </p>
           {groups.map((group) => (
             <div key={group.date}>
-              <p className="mb-1 text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                {formatDayHeading(group.date, locale)}
-              </p>
+              <DayHeading
+                date={group.date}
+                items={group.items}
+                locale={locale}
+                categoryById={categoryById}
+                space={space}
+              />
               <Card>
                 <CardContent className="divide-y divide-border py-0">
                   {group.items.map((t) => {

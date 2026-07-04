@@ -49,8 +49,9 @@ describe('TransactionsPage', () => {
   it('shows income green with a plus and the space currency symbol', async () => {
     /** The Salary row renders +$2,400.00 with the income style class. */
     renderPage()
-    const income = await screen.findByText('+$2,400.00')
-    expect(income).toHaveClass('text-green-600')
+    const incomeRow = await screen.findByText(/💰 Salary/)
+    const income = incomeRow.closest('button')?.querySelector('.text-green-600')
+    expect(income?.textContent).toBe('+$2,400.00')
     expect(screen.getByText('$84.20')).toBeInTheDocument()
   })
 
@@ -134,5 +135,33 @@ describe('TransactionsPage', () => {
     )
     renderPage()
     expect(await screen.findByText(/Mai/)).toBeInTheDocument()
+  })
+
+  it('shows the month summary strip with income, spent and net', async () => {
+    /** The strip totals the fetched transactions: income green, net signed. */
+    renderPage()
+    await screen.findByText(/🛒 Groceries/)
+    const strip = screen.getByTestId('month-summary')
+    expect(strip).toHaveTextContent('Income +$2,400.00')
+    expect(strip).toHaveTextContent('Spent $116.70')
+    expect(strip).toHaveTextContent('Net +$2,283.30')
+  })
+
+  it('shows a subtotal in each day heading', async () => {
+    /** Expense days show the plain spent amount; income days show green +amount. */
+    renderPage()
+    const expenseDay = await screen.findByTestId('day-total-2026-05-14')
+    expect(expenseDay).toHaveTextContent('$116.70')
+    const incomeDay = screen.getByTestId('day-total-2026-05-12')
+    expect(incomeDay).toHaveTextContent('+$2,400.00')
+    expect(incomeDay).toHaveClass('text-green-600')
+  })
+
+  it('hides the summary strip when the month is empty', async () => {
+    /** No transactions → no strip, just the empty state. */
+    server.use(http.get(`${BASE}/api/budgets/transactions/`, () => HttpResponse.json([])))
+    renderPage()
+    await screen.findByText(/no transactions in/i)
+    expect(screen.queryByTestId('month-summary')).not.toBeInTheDocument()
   })
 })
