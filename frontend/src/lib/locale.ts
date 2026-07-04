@@ -1,3 +1,4 @@
+// Keep in sync with backend/apps/spaces/serializers.py SUPPORTED_LOCALES.
 export const SUPPORTED_LOCALES = [
   { code: '', label: 'Auto (browser)' },
   { code: 'en-US', label: 'English (US)' },

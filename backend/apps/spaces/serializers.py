@@ -8,6 +8,7 @@ from apps.accounts.models import User
 from .models import Space, SpaceInvite, SpaceMembership
 
 
+# Keep in sync with frontend/src/lib/locale.ts SUPPORTED_LOCALES.
 SUPPORTED_LOCALES = ("en-US", "en-GB", "de-DE", "fr-FR", "es-ES", "pl-PL", "ru-RU")
 
 

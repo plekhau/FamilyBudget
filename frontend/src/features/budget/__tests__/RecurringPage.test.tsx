@@ -100,4 +100,22 @@ describe('RecurringPage', () => {
     renderPage()
     expect(await screen.findByText(/Monthly ·/)).toBeInTheDocument()
   })
+
+  it('accepts a comma decimal in the recurring amount and submits a dot', async () => {
+    /** Typing 12,50 in the recurring dialog passes validation and the payload carries amount "12.50". */
+    const bodies: Record<string, unknown>[] = []
+    server.use(
+      http.post(`${BASE}/api/budgets/recurring-transactions/`, async ({ request }) => {
+        const body = (await request.json()) as Record<string, unknown>
+        bodies.push(body)
+        return HttpResponse.json({ id: 99, ...body }, { status: 201 })
+      })
+    )
+    renderPage()
+    await userEvent.click(await screen.findByRole('button', { name: /add recurring/i }))
+    await userEvent.type(screen.getByLabelText(/description/i), 'Gym')
+    await userEvent.type(screen.getByLabelText(/amount/i), '12,50')
+    await userEvent.click(screen.getByRole('button', { name: /^save$/i }))
+    await waitFor(() => expect(bodies[0]).toMatchObject({ amount: '12.50' }))
+  })
 })
