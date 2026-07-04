@@ -8,6 +8,9 @@ from apps.accounts.models import User
 from .models import Space, SpaceInvite, SpaceMembership
 
 
+SUPPORTED_LOCALES = ("en-US", "en-GB", "de-DE", "fr-FR", "es-ES", "pl-PL", "ru-RU")
+
+
 class UserBriefSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -27,13 +30,18 @@ class SpaceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Space
-        fields = ("id", "name", "currency", "created_at", "members")
+        fields = ("id", "name", "currency", "locale", "created_at", "members")
         read_only_fields = ("id", "created_at", "members")
 
     def validate_currency(self, value):
         value = value.upper()
         if len(value) != 3 or not value.isalpha():
             raise serializers.ValidationError("Currency must be a 3-letter code.")
+        return value
+
+    def validate_locale(self, value):
+        if value and value not in SUPPORTED_LOCALES:
+            raise serializers.ValidationError("Unsupported locale.")
         return value
 
 

@@ -49,3 +49,22 @@ class TestSpaceUpdate:
         api_client.force_authenticate(user=outsider)
         response = api_client.patch(f"/api/spaces/{space_id}/", {"currency": "GBP"})
         assert response.status_code == 404
+
+    @pytest.mark.parametrize("locale", ["en-US", "en-GB", "de-DE", "fr-FR", "es-ES", "pl-PL", "ru-RU", ""])
+    def test_owner_can_update_locale(self, auth_client, locale):
+        """The owner can PATCH any supported locale, including '' meaning auto."""
+        space_id = auth_client.post("/api/spaces/", {"name": "Home"}).data["id"]
+        response = auth_client.patch(f"/api/spaces/{space_id}/", {"locale": locale})
+        assert response.status_code == 200
+        assert response.data["locale"] == locale
+
+    def test_unsupported_locale_rejected(self, auth_client):
+        """PATCHing a locale outside the supported list returns 400."""
+        space_id = auth_client.post("/api/spaces/", {"name": "Home"}).data["id"]
+        response = auth_client.patch(f"/api/spaces/{space_id}/", {"locale": "xx-XX"})
+        assert response.status_code == 400
+
+    def test_locale_defaults_to_empty(self, auth_client):
+        """A newly created space has locale '' (auto) in its payload."""
+        response = auth_client.post("/api/spaces/", {"name": "Home"})
+        assert response.data["locale"] == ""

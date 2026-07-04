@@ -7,6 +7,7 @@ from django.db import models
 class Space(models.Model):
     name = models.CharField(max_length=255)
     currency = models.CharField(max_length=3, default="USD")
+    locale = models.CharField(max_length=10, blank=True, default="")
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
