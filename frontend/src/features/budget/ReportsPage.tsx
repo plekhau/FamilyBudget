@@ -8,20 +8,21 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
 import { formatMoney } from '@/lib/money'
 import { currentMonth, stepMonth, formatMonth, currentWeekStart, stepWeek, formatWeekRange } from '@/lib/dates'
+import { spaceLocale } from '@/lib/locale'
 import { useCategories, useReport, type ReportPeriodType, type ReportRow } from '@/hooks/useBudget'
 import { useSelectedSpace } from './useSelectedSpace'
 import { NoSpaceState } from './NoSpaceState'
 
 const CHART_COLORS = ['#6366f1', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#14b8a6', '#f97316', '#64748b']
 
-function usePeriod() {
+function usePeriod(locale = 'en-US') {
   const [type, setType] = useState<ReportPeriodType>('month')
   const [month, setMonth] = useState(currentMonth())
   const [week, setWeek] = useState(currentWeekStart())
   const [year, setYear] = useState(String(new Date().getFullYear()))
 
   const value = type === 'month' ? month : type === 'week' ? week : year
-  const label = type === 'month' ? formatMonth(month) : type === 'week' ? formatWeekRange(week) : year
+  const label = type === 'month' ? formatMonth(month, locale) : type === 'week' ? formatWeekRange(week, locale) : year
 
   const step = (delta: number) => {
     if (type === 'month') setMonth(stepMonth(month, delta))
@@ -45,7 +46,7 @@ function SummaryCard({ title, value, className }: { title: string; value: string
 
 export function ReportsPage() {
   const { space, isLoading: spaceLoading } = useSelectedSpace()
-  const { type, setType, value, label, step } = usePeriod()
+  const { type, setType, value, label, step } = usePeriod(space ? spaceLocale(space) : undefined)
   const { data: categories = [] } = useCategories(space?.id ?? null)
   const { data: rows = [], isLoading } = useReport(space?.id ?? null, type, value)
 
@@ -59,6 +60,7 @@ export function ReportsPage() {
   }
   if (!space) return <NoSpaceState />
 
+  const locale = spaceLocale(space)
   const incomeCategoryIds = new Set(categories.filter((c) => c.is_income).map((c) => c.id))
   const expenseRows: ReportRow[] = rows.filter((r) => !incomeCategoryIds.has(r.category_id))
   const incomeRows: ReportRow[] = rows.filter((r) => incomeCategoryIds.has(r.category_id))
@@ -102,13 +104,13 @@ export function ReportsPage() {
           <div className="flex gap-3">
             <SummaryCard
               title="Income"
-              value={formatMoney(incomeTotal, space.currency)}
+              value={formatMoney(incomeTotal, space.currency, locale)}
               className="text-green-600 dark:text-green-400"
             />
-            <SummaryCard title="Expenses" value={formatMoney(expenseTotal, space.currency)} />
+            <SummaryCard title="Expenses" value={formatMoney(expenseTotal, space.currency, locale)} />
             <SummaryCard
               title="Net"
-              value={`${net >= 0 ? '+' : ''}${formatMoney(net, space.currency)}`}
+              value={`${net >= 0 ? '+' : ''}${formatMoney(net, space.currency, locale)}`}
               className={net >= 0 ? 'text-green-600 dark:text-green-400' : 'text-destructive'}
             />
           </div>
@@ -135,7 +137,7 @@ export function ReportsPage() {
                         {r.category_icon} {r.category_name}
                       </span>
                       <span className="font-semibold">
-                        {formatMoney(r.total, space.currency)}{' '}
+                        {formatMoney(r.total, space.currency, locale)}{' '}
                         <span className="font-normal text-muted-foreground">
                           · {expenseTotal > 0 ? Math.round((Number(r.total) / expenseTotal) * 100) : 0}%
                         </span>
@@ -161,7 +163,7 @@ export function ReportsPage() {
                       {r.category_icon} {r.category_name}
                     </span>
                     <span className="font-semibold text-green-600 dark:text-green-400">
-                      +{formatMoney(r.total, space.currency)}
+                      +{formatMoney(r.total, space.currency, locale)}
                     </span>
                   </div>
                 ))}

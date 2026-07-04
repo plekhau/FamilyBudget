@@ -245,7 +245,7 @@ describe('SpacesPage', () => {
 
   it('saves a currency change via PATCH', async () => {
     /** Picking a currency and clicking Save PATCHes the space. */
-    let patched: { currency?: string } = {}
+    let patched: { currency?: string; locale?: string } = {}
     server.use(
       http.patch(`${BASE}/api/spaces/:id/`, async ({ request }) => {
         patched = (await request.json()) as typeof patched
@@ -253,6 +253,7 @@ describe('SpacesPage', () => {
           id: 1,
           name: 'Home Budget',
           currency: patched.currency,
+          locale: patched.locale ?? '',
           created_at: '2026-01-01T00:00:00Z',
           members: [],
         })
@@ -262,6 +263,29 @@ describe('SpacesPage', () => {
     await screen.findByText('Home Budget')
     await userEvent.selectOptions(screen.getByLabelText(/currency/i), 'EUR')
     await userEvent.click(screen.getByRole('button', { name: /^save$/i }))
-    await waitFor(() => expect(patched).toEqual({ currency: 'EUR' }))
+    await waitFor(() => expect(patched).toMatchObject({ currency: 'EUR' }))
+  })
+
+  it('saves the formatting locale from space settings', async () => {
+    /** Picking German in the Formatting select PATCHes locale=de-DE. */
+    const bodies: Record<string, unknown>[] = []
+    server.use(
+      http.patch(`${BASE}/api/spaces/:id/`, async ({ request }) => {
+        const body = (await request.json()) as Record<string, unknown>
+        bodies.push(body)
+        return HttpResponse.json({
+          id: 1,
+          name: 'Home Budget',
+          currency: 'USD',
+          locale: 'de-DE',
+          created_at: '2026-01-01T00:00:00Z',
+          members: [],
+        })
+      })
+    )
+    renderSpaces()
+    await userEvent.selectOptions(await screen.findByLabelText(/formatting/i), 'de-DE')
+    await userEvent.click(screen.getByRole('button', { name: /^save$/i }))
+    await waitFor(() => expect(bodies[0]).toMatchObject({ locale: 'de-DE' }))
   })
 })

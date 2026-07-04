@@ -4,6 +4,7 @@ import { MemoryRouter } from 'react-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { http, HttpResponse } from 'msw'
 import { server } from '@/mocks/server'
+import { mockTransactions } from '@/mocks/handlers'
 import { TransactionsPage } from '../TransactionsPage'
 import { useAuthStore } from '@/store/authStore'
 import { useSpaceStore } from '@/store/spaceStore'
@@ -105,5 +106,33 @@ describe('TransactionsPage', () => {
     server.use(http.get(`${BASE}/api/spaces/`, () => HttpResponse.json([])))
     renderPage()
     expect(await screen.findByText(/create a space to start tracking your budget/i)).toBeInTheDocument()
+  })
+
+  it('formats dates and money using the space locale', async () => {
+    /** A space with locale de-DE renders German day headings. */
+    server.use(
+      http.get(`${BASE}/api/spaces/`, () =>
+        HttpResponse.json([
+          {
+            id: 1,
+            name: 'Home Budget',
+            currency: 'EUR',
+            locale: 'de-DE',
+            created_at: '2026-01-01T00:00:00Z',
+            members: [
+              {
+                id: 1,
+                user: { id: 1, email: 'test@example.com', display_name: 'Test User' },
+                role: 'owner',
+                joined_at: '2026-01-01T00:00:00Z',
+              },
+            ],
+          },
+        ])
+      ),
+      http.get(`${BASE}/api/budgets/transactions/`, () => HttpResponse.json([mockTransactions[0]]))
+    )
+    renderPage()
+    expect(await screen.findByText(/Mai/)).toBeInTheDocument()
   })
 })

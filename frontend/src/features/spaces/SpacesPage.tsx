@@ -9,6 +9,7 @@ import { AvatarInitials } from '@/components/ui/avatar-initials'
 import { NativeSelect } from '@/components/ui/native-select'
 import { cn } from '@/lib/utils'
 import { CURRENCIES } from '@/lib/currencies'
+import { SUPPORTED_LOCALES } from '@/lib/locale'
 import {
   useSpaces,
   useCreateInvite,
@@ -111,11 +112,13 @@ function InviteCard({ spaceId }: { spaceId: number }) {
 
 function SpaceSettingsCard({ space }: { space: Space }) {
   const [currency, setCurrency] = useState(space.currency)
+  const [locale, setLocale] = useState(space.locale)
   const updateSpace = useUpdateSpace()
+  const dirty = currency !== space.currency || locale !== space.locale
 
   const handleSave = () => {
     updateSpace.mutate(
-      { id: space.id, currency },
+      { id: space.id, currency, locale },
       {
         onSuccess: () => toast.success('Space settings saved'),
         onError: () => toast.error('Failed to save space settings. Please try again.'),
@@ -130,9 +133,9 @@ function SpaceSettingsCard({ space }: { space: Space }) {
           Space Settings
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-2">
-        <div className="flex items-end gap-2">
-          <div className="flex-1 space-y-2">
+      <CardContent className="space-y-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="space-y-2">
             <Label htmlFor="settings-currency">Currency</Label>
             <NativeSelect id="settings-currency" value={currency} onChange={(e) => setCurrency(e.target.value)}>
               {CURRENCIES.map((c) => (
@@ -142,12 +145,22 @@ function SpaceSettingsCard({ space }: { space: Space }) {
               ))}
             </NativeSelect>
           </div>
-          <Button onClick={handleSave} disabled={currency === space.currency || updateSpace.isPending}>
-            {updateSpace.isPending ? 'Saving…' : 'Save'}
-          </Button>
+          <div className="space-y-2">
+            <Label htmlFor="settings-locale">Formatting</Label>
+            <NativeSelect id="settings-locale" value={locale} onChange={(e) => setLocale(e.target.value)}>
+              {SUPPORTED_LOCALES.map((l) => (
+                <option key={l.code} value={l.code}>
+                  {l.label}
+                </option>
+              ))}
+            </NativeSelect>
+          </div>
         </div>
+        <Button onClick={handleSave} disabled={!dirty || updateSpace.isPending}>
+          {updateSpace.isPending ? 'Saving…' : 'Save'}
+        </Button>
         <p className="text-xs text-muted-foreground">
-          Changes how amounts are displayed for everyone in this space. Existing amounts are not converted.
+          Changes how amounts and dates are displayed for everyone in this space. Existing amounts are not converted.
         </p>
       </CardContent>
     </Card>

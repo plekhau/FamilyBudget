@@ -98,6 +98,7 @@ export const handlers = [
         id: 1,
         name: 'Home Budget',
         currency: 'USD',
+        locale: '',
         created_at: '2026-01-01T00:00:00Z',
         members: [
           {
@@ -118,12 +119,13 @@ export const handlers = [
   ),
 
   http.post(`${BASE}/api/spaces/`, async ({ request }) => {
-    const body = (await request.json()) as { name: string; currency?: string }
+    const body = (await request.json()) as { name: string; currency?: string; locale?: string }
     return HttpResponse.json(
       {
         id: 2,
         name: body.name,
         currency: body.currency ?? 'USD',
+        locale: body.locale ?? '',
         created_at: '2026-01-01T00:00:00Z',
         members: [
           {
@@ -156,11 +158,12 @@ export const handlers = [
   http.post(`${BASE}/api/spaces/invites/accept/`, () => HttpResponse.json({ detail: 'Joined space successfully.' })),
 
   http.patch(`${BASE}/api/spaces/:id/`, async ({ request, params }) => {
-    const body = (await request.json()) as { name?: string; currency?: string }
+    const body = (await request.json()) as { name?: string; currency?: string; locale?: string }
     return HttpResponse.json({
       id: Number(params.id),
       name: body.name ?? 'Home Budget',
       currency: body.currency ?? 'USD',
+      locale: body.locale ?? '',
       created_at: '2026-01-01T00:00:00Z',
       members: [],
     })

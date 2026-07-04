@@ -8,6 +8,7 @@ import { Switch } from '@/components/ui/switch'
 import { cn } from '@/lib/utils'
 import { formatMoney } from '@/lib/money'
 import { formatDayHeading } from '@/lib/dates'
+import { spaceLocale } from '@/lib/locale'
 import { useCategories, useRecurring, useUpdateRecurring, type RecurringTransaction } from '@/hooks/useBudget'
 import { useSelectedSpace } from './useSelectedSpace'
 import { NoSpaceState } from './NoSpaceState'
@@ -31,6 +32,7 @@ export function RecurringPage() {
   }
   if (!space) return <NoSpaceState />
 
+  const locale = spaceLocale(space)
   const categoryById = new Map(categories.map((c) => [c.id, c]))
 
   const handleToggle = (item: RecurringTransaction, checked: boolean) => {
@@ -73,10 +75,11 @@ export function RecurringPage() {
                       {category?.icon} {item.description}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {item.frequency} · {item.is_active ? `next: ${formatDayHeading(item.next_due_date)}` : 'paused'}
+                      {item.frequency} ·{' '}
+                      {item.is_active ? `next: ${formatDayHeading(item.next_due_date, locale)}` : 'paused'}
                     </p>
                   </button>
-                  <span className="text-sm font-semibold">{formatMoney(item.amount, space.currency)}</span>
+                  <span className="text-sm font-semibold">{formatMoney(item.amount, space.currency, locale)}</span>
                   <Switch
                     checked={item.is_active}
                     aria-label={`toggle ${item.description}`}

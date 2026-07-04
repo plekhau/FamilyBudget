@@ -7,6 +7,7 @@ import { NativeSelect } from '@/components/ui/native-select'
 import { cn } from '@/lib/utils'
 import { formatMoney } from '@/lib/money'
 import { currentMonth, stepMonth, formatMonth, formatDayHeading } from '@/lib/dates'
+import { spaceLocale } from '@/lib/locale'
 import { useCategories, useTransactions, type Transaction } from '@/hooks/useBudget'
 import { useSelectedSpace } from './useSelectedSpace'
 import { NoSpaceState } from './NoSpaceState'
@@ -46,6 +47,7 @@ export function TransactionsPage() {
   }
   if (!space) return <NoSpaceState />
 
+  const locale = spaceLocale(space)
   const categoryById = new Map(categories.map((c) => [c.id, c]))
   const memberById = new Map(space.members.map((m) => [m.user.id, m.user.display_name]))
   const groups = groupByDay(transactions)
@@ -62,7 +64,7 @@ export function TransactionsPage() {
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <h1 className="min-w-32 text-center text-lg font-bold">{formatMonth(month)}</h1>
+          <h1 className="min-w-32 text-center text-lg font-bold">{formatMonth(month, locale)}</h1>
           <Button variant="ghost" size="icon" aria-label="next month" onClick={() => setMonth(stepMonth(month, 1))}>
             <ChevronRight className="h-4 w-4" />
           </Button>
@@ -92,7 +94,7 @@ export function TransactionsPage() {
       ) : groups.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
-            <p className="text-muted-foreground">No transactions in {formatMonth(month)}.</p>
+            <p className="text-muted-foreground">No transactions in {formatMonth(month, locale)}.</p>
             <Button className="mt-4" onClick={() => setDialogOpen(true)}>
               <Plus className="h-4 w-4" /> Add transaction
             </Button>
@@ -103,7 +105,7 @@ export function TransactionsPage() {
           {groups.map((group) => (
             <div key={group.date}>
               <p className="mb-1 text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                {formatDayHeading(group.date)}
+                {formatDayHeading(group.date, locale)}
               </p>
               <Card>
                 <CardContent className="divide-y divide-border py-0">
@@ -128,8 +130,8 @@ export function TransactionsPage() {
                         </div>
                         <span className={cn('text-sm font-semibold', isIncome && 'text-green-600 dark:text-green-400')}>
                           {isIncome
-                            ? `+${formatMoney(t.amount, space.currency)}`
-                            : formatMoney(t.amount, space.currency)}
+                            ? `+${formatMoney(t.amount, space.currency, locale)}`
+                            : formatMoney(t.amount, space.currency, locale)}
                         </span>
                       </button>
                     )
