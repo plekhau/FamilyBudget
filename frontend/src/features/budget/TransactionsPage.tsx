@@ -95,6 +95,11 @@ export function TransactionsPage() {
           <Button variant="ghost" size="icon" aria-label="next month" onClick={() => setMonth(stepMonth(month, 1))}>
             <ChevronRight className="h-4 w-4" />
           </Button>
+          {month !== currentMonth() && (
+            <Button variant="ghost" size="sm" onClick={() => setMonth(currentMonth())}>
+              Today
+            </Button>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <NativeSelect

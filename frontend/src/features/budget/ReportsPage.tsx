@@ -30,7 +30,20 @@ function usePeriod(locale = 'en-US') {
     else setYear(String(Number(year) + delta))
   }
 
-  return { type, setType, value, label, step }
+  const isCurrent =
+    type === 'month'
+      ? month === currentMonth()
+      : type === 'week'
+        ? week === currentWeekStart()
+        : year === String(new Date().getFullYear())
+
+  const resetToToday = () => {
+    if (type === 'month') setMonth(currentMonth())
+    else if (type === 'week') setWeek(currentWeekStart())
+    else setYear(String(new Date().getFullYear()))
+  }
+
+  return { type, setType, value, label, step, isCurrent, resetToToday }
 }
 
 function SummaryCard({ title, value, className }: { title: string; value: string; className?: string }) {
@@ -46,7 +59,9 @@ function SummaryCard({ title, value, className }: { title: string; value: string
 
 export function ReportsPage() {
   const { space, isLoading: spaceLoading } = useSelectedSpace()
-  const { type, setType, value, label, step } = usePeriod(space ? spaceLocale(space) : undefined)
+  const { type, setType, value, label, step, isCurrent, resetToToday } = usePeriod(
+    space ? spaceLocale(space) : undefined
+  )
   const { data: categories = [] } = useCategories(space?.id ?? null)
   const { data: rows = [], isLoading } = useReport(space?.id ?? null, type, value)
 
@@ -88,6 +103,11 @@ export function ReportsPage() {
           <Button variant="ghost" size="icon" aria-label="next period" onClick={() => step(1)}>
             <ChevronRight className="h-4 w-4" />
           </Button>
+          {!isCurrent && (
+            <Button variant="ghost" size="sm" onClick={resetToToday}>
+              Today
+            </Button>
+          )}
         </div>
       </div>
 

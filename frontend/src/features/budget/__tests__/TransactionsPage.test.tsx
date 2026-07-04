@@ -165,4 +165,14 @@ describe('TransactionsPage', () => {
     await screen.findByText(/no transactions in/i)
     expect(screen.queryByTestId('month-summary')).not.toBeInTheDocument()
   })
+
+  it('shows a Today button only when off the current month', async () => {
+    /** Hidden on the current month; appears after stepping back; clicking returns to now. */
+    renderPage()
+    await screen.findByText(/🛒 Groceries/)
+    expect(screen.queryByRole('button', { name: /today/i })).not.toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: /previous month/i }))
+    await userEvent.click(await screen.findByRole('button', { name: /today/i }))
+    expect(screen.queryByRole('button', { name: /today/i })).not.toBeInTheDocument()
+  })
 })

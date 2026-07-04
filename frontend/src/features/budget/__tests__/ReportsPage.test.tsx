@@ -87,4 +87,14 @@ describe('ReportsPage', () => {
     renderPage()
     expect(await screen.findByText(/no data for this period/i)).toBeInTheDocument()
   })
+
+  it('shows a Today button only when off the current period', async () => {
+    /** Hidden initially; appears after stepping back; clicking resets the period. */
+    renderPage()
+    await screen.findByText(/🛒 Groceries/)
+    expect(screen.queryByRole('button', { name: /today/i })).not.toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: /previous period/i }))
+    await userEvent.click(await screen.findByRole('button', { name: /today/i }))
+    expect(screen.queryByRole('button', { name: /today/i })).not.toBeInTheDocument()
+  })
 })
