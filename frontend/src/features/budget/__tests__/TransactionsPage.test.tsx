@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -50,8 +50,9 @@ describe('TransactionsPage', () => {
     /** The Salary row renders +$2,400.00 with the income style class. */
     renderPage()
     const incomeRow = await screen.findByText(/💰 Salary/)
-    const income = incomeRow.closest('button')?.querySelector('.text-green-600')
-    expect(income?.textContent).toBe('+$2,400.00')
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const amountSpan = within(incomeRow.closest('button')!).getByText('+$2,400.00')
+    expect(amountSpan).toHaveClass('text-green-600')
     expect(screen.getByText('$84.20')).toBeInTheDocument()
   })
 
