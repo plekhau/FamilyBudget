@@ -39,9 +39,14 @@ uv run python manage.py makemigrations --settings=config.settings.local
 
 # Generate recurring transactions (management command)
 uv run python manage.py generate_recurring_transactions --settings=config.settings.local
+
+# Format with black (CI runs `uv run black --check .`)
+uv run black .
 ```
 
 The `--settings` flag is only needed for management commands; pytest reads `DJANGO_SETTINGS_MODULE` from `pyproject.toml` automatically (`config.settings.local`).
+
+**Before committing backend changes:** run `uv run black .` from `backend/`. The pre-commit hook (lint-staged, root `.lintstagedrc.json`) also runs black on staged `backend/**/*.py` files.
 
 ### Frontend
 

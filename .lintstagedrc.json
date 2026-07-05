@@ -1,0 +1,3 @@
+{
+  "backend/**/*.py": "uv run --project backend black"
+}
