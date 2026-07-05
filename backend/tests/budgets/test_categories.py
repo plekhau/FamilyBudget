@@ -126,7 +126,14 @@ class TestCategoryAPI:
         for day in ("2026-07-01", "2026-07-02"):
             response = auth_client.post(
                 "/api/budgets/transactions/",
-                {"space_id": space_id, "category": cat_id, "amount": "10.00", "date": day, "paid_by": me["id"], "notes": ""},
+                {
+                    "space_id": space_id,
+                    "category": cat_id,
+                    "amount": "10.00",
+                    "date": day,
+                    "paid_by": me["id"],
+                    "notes": "",
+                },
             )
             assert response.status_code == 201
         categories = auth_client.get(f"/api/budgets/categories/?space_id={space_id}").data
