@@ -1,1 +1,5 @@
-cd frontend && pnpm exec lint-staged --cwd ..
+# Run from repo root without --cwd so lint-staged uses each config file's
+# directory as the task cwd (prettier must run in frontend/ to resolve its
+# tailwindcss plugin). Absolute PATH: pnpm's own entry is relative and breaks
+# outside frontend/.
+PATH="$PWD/frontend/node_modules/.bin:$PATH" lint-staged
