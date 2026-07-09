@@ -86,3 +86,59 @@ pnpm format:check  # CI check
 
 Pre-commit hooks run automatically via husky + lint-staged on every commit.
 
+## Development
+
+Everything needed to run a fully working local instance.
+
+### One-time setup
+
+1. **Backend environment** — create `backend/.env` from the example and point it at SQLite for local dev:
+
+   ```bash
+   cd backend
+   cp .env.example .env
+   # then edit .env: DATABASE_URL=sqlite:///db.sqlite3
+   ```
+
+2. **Install dependencies and prepare the database** — follow [Backend → Setup](#setup) and [Backend → Database](#database), then [Frontend → Setup](#setup-1).
+
+### Running the app
+
+Two processes, in separate terminals:
+
+```bash
+# Terminal 1 — API on http://localhost:8000
+cd backend
+uv run python manage.py runserver --settings=config.settings.local
+
+# Terminal 2 — web app on http://localhost:5173
+cd frontend
+pnpm dev
+```
+
+### Recurring transactions (scheduled job)
+
+Creating or editing a recurring transaction in the UI immediately generates any already-due
+transactions. **Future occurrences, however, are only materialized by a management command that
+must run at least once a day:**
+
+```bash
+cd backend
+uv run python manage.py generate_recurring_transactions --settings=config.settings.local
+```
+
+A single run catches up on all missed periods, so it is safe if your machine was off for a while —
+the next run will backfill every missed occurrence.
+
+To automate it with cron (macOS/Linux), run `crontab -e` and add:
+
+```cron
+0 9 * * * cd /path/to/FamilyBudget/backend && /full/path/to/uv run python manage.py generate_recurring_transactions --settings=config.settings.local >> /tmp/familybudget-recurring.log 2>&1
+```
+
+Notes:
+
+- Use the full path to `uv` (find it with `which uv`) — cron runs with a minimal `PATH`.
+- On macOS, cron jobs are skipped while the machine sleeps; thanks to the catch-up behavior the
+  next successful run will backfill anything missed.
+
