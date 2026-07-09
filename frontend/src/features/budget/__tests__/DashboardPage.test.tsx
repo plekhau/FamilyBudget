@@ -65,4 +65,37 @@ describe('DashboardPage', () => {
     renderPage()
     expect(await screen.findByText(/create a space to start tracking your budget/i)).toBeInTheDocument()
   })
+
+  it('lists top expense categories with percentages, capped at 5', async () => {
+    /** Six expense categories are mocked; only the top 5 by total render, sorted descending, with % of expense total. */
+    server.use(
+      http.get(`${BASE}/api/budgets/reports/:reportType/`, () =>
+        HttpResponse.json([
+          { category_id: 1, category_name: 'Rent', category_icon: '🏠', total: '500.00' },
+          { category_id: 2, category_name: 'Food', category_icon: '🍎', total: '250.00' },
+          { category_id: 7, category_name: 'Fuel', category_icon: '⛽', total: '120.00' },
+          { category_id: 4, category_name: 'Fun', category_icon: '🎬', total: '80.00' },
+          { category_id: 5, category_name: 'Gym', category_icon: '🏋️', total: '40.00' },
+          { category_id: 6, category_name: 'Misc', category_icon: '📦', total: '10.00' },
+        ])
+      )
+    )
+    renderPage()
+    const rows = await screen.findAllByTestId('top-category-row')
+    expect(rows).toHaveLength(5)
+    expect(rows[0]).toHaveTextContent('🏠 Rent')
+    expect(rows[0]).toHaveTextContent('50%')
+    expect(screen.queryByText(/📦 Misc/)).not.toBeInTheDocument()
+  })
+
+  it('shows an empty message when there are no expenses this period', async () => {
+    /** With an income-only report, the top-categories card shows its empty state. */
+    server.use(
+      http.get(`${BASE}/api/budgets/reports/:reportType/`, () =>
+        HttpResponse.json([{ category_id: 3, category_name: 'Salary', category_icon: '💰', total: '2400.00' }])
+      )
+    )
+    renderPage()
+    expect(await screen.findByText(/no expenses this period/i)).toBeInTheDocument()
+  })
 })

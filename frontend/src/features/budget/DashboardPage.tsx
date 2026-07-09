@@ -1,16 +1,71 @@
 import { useState } from 'react'
+import { Link } from 'react-router'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { formatMoney } from '@/lib/money'
 import { currentMonth, formatMonth } from '@/lib/dates'
 import { spaceLocale } from '@/lib/locale'
-import { useCategories, useReport } from '@/hooks/useBudget'
+import { useCategories, useReport, type ReportRow } from '@/hooks/useBudget'
 import { splitReportRows } from './reportRows'
 import { SummaryCard } from './SummaryCard'
 import { useSelectedSpace } from './useSelectedSpace'
 import { NoSpaceState } from './NoSpaceState'
 
 type DashboardPeriod = 'month' | 'year'
+
+const TOP_CATEGORIES_LIMIT = 5
+
+function TopCategories({
+  expenseRows,
+  expenseTotal,
+  currency,
+  locale,
+}: {
+  expenseRows: ReportRow[]
+  expenseTotal: number
+  currency: string
+  locale: string
+}) {
+  const top = expenseRows.slice(0, TOP_CATEGORIES_LIMIT)
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+          Top categories
+        </CardTitle>
+        <Link to="/budget/reports" className="text-xs font-medium text-primary hover:underline">
+          View report →
+        </Link>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {top.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No expenses this period.</p>
+        ) : (
+          top.map((r) => {
+            const pct = expenseTotal > 0 ? Math.round((Number(r.total) / expenseTotal) * 100) : 0
+            return (
+              <div key={r.category_id} data-testid="top-category-row">
+                <div className="flex items-center justify-between text-sm">
+                  <span>
+                    {r.category_icon} {r.category_name}
+                  </span>
+                  <span className="font-semibold">
+                    {formatMoney(r.total, currency, locale)}{' '}
+                    <span className="font-normal text-muted-foreground">· {pct}%</span>
+                  </span>
+                </div>
+                <div className="mt-1 h-1.5 w-full rounded-full bg-muted">
+                  <div className="h-1.5 rounded-full bg-primary" style={{ width: `${pct}%` }} />
+                </div>
+              </div>
+            )
+          })
+        )}
+      </CardContent>
+    </Card>
+  )
+}
 
 export function DashboardPage() {
   const { space, isLoading: spaceLoading } = useSelectedSpace()
@@ -31,7 +86,7 @@ export function DashboardPage() {
 
   const locale = spaceLocale(space)
   const periodLabel = period === 'month' ? formatMonth(periodValue, locale) : periodValue
-  const { incomeTotal, expenseTotal, net } = splitReportRows(reportRows, categories)
+  const { incomeTotal, expenseTotal, net, expenseRows } = splitReportRows(reportRows, categories)
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -51,21 +106,31 @@ export function DashboardPage() {
       </div>
 
       {reportLoading ? (
-        <Skeleton className="h-24 w-full rounded-xl" />
+        <Skeleton className="h-64 w-full rounded-xl" />
       ) : (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3" data-testid="summary-cards">
-          <SummaryCard
-            title="Income"
-            value={formatMoney(incomeTotal, space.currency, locale)}
-            className="text-green-600 dark:text-green-400"
-          />
-          <SummaryCard title="Expenses" value={formatMoney(expenseTotal, space.currency, locale)} />
-          <SummaryCard
-            title="Net"
-            value={`${net >= 0 ? '+' : ''}${formatMoney(net, space.currency, locale)}`}
-            className={net >= 0 ? 'text-green-600 dark:text-green-400' : 'text-destructive'}
-          />
-        </div>
+        <>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3" data-testid="summary-cards">
+            <SummaryCard
+              title="Income"
+              value={formatMoney(incomeTotal, space.currency, locale)}
+              className="text-green-600 dark:text-green-400"
+            />
+            <SummaryCard title="Expenses" value={formatMoney(expenseTotal, space.currency, locale)} />
+            <SummaryCard
+              title="Net"
+              value={`${net >= 0 ? '+' : ''}${formatMoney(net, space.currency, locale)}`}
+              className={net >= 0 ? 'text-green-600 dark:text-green-400' : 'text-destructive'}
+            />
+          </div>
+          <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-2">
+            <TopCategories
+              expenseRows={expenseRows}
+              expenseTotal={expenseTotal}
+              currency={space.currency}
+              locale={locale}
+            />
+          </div>
+        </>
       )}
     </div>
   )
