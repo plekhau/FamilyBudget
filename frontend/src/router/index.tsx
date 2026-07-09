@@ -11,6 +11,7 @@ const SpacesPage = lazy(() => import('@/features/spaces/SpacesPage').then((m) =>
 const AcceptInvitePage = lazy(() =>
   import('@/features/spaces/AcceptInvitePage').then((m) => ({ default: m.AcceptInvitePage }))
 )
+const DashboardPage = lazy(() => import('@/features/budget/DashboardPage').then((m) => ({ default: m.DashboardPage })))
 const TransactionsPage = lazy(() =>
   import('@/features/budget/TransactionsPage').then((m) => ({ default: m.TransactionsPage }))
 )
@@ -21,10 +22,6 @@ const RecurringPage = lazy(() => import('@/features/budget/RecurringPage').then(
 const ReportsPage = lazy(() => import('@/features/budget/ReportsPage').then((m) => ({ default: m.ReportsPage })))
 
 const Loader = () => <div className="flex min-h-screen items-center justify-center text-muted-foreground">Loading…</div>
-
-function ComingSoon({ title }: { title: string }) {
-  return <div className="flex h-full items-center justify-center text-muted-foreground">{title} — coming soon</div>
-}
 
 export const router = createBrowserRouter([
   {
@@ -58,7 +55,14 @@ export const router = createBrowserRouter([
         element: <AppShell />,
         children: [
           { index: true, element: <Navigate to="/settings" replace /> },
-          { path: '/dashboard', element: <ComingSoon title="Dashboard" /> },
+          {
+            path: '/dashboard',
+            element: (
+              <Suspense fallback={<Loader />}>
+                <DashboardPage />
+              </Suspense>
+            ),
+          },
           { path: '/budget', element: <Navigate to="/budget/transactions" replace /> },
           {
             path: '/budget/transactions',

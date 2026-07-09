@@ -5,12 +5,12 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { cn } from '@/lib/utils'
 import { formatMoney } from '@/lib/money'
 import { currentMonth, stepMonth, formatMonth, currentWeekStart, stepWeek, formatWeekRange } from '@/lib/dates'
 import { spaceLocale } from '@/lib/locale'
 import { useCategories, useReport, type ReportPeriodType } from '@/hooks/useBudget'
 import { splitReportRows } from './reportRows'
+import { SummaryCard } from './SummaryCard'
 import { useSelectedSpace } from './useSelectedSpace'
 import { NoSpaceState } from './NoSpaceState'
 
@@ -60,17 +60,6 @@ function usePeriod(locale = 'en-US') {
   }
 
   return { type, setType, value, label, step, isCurrent, resetToToday }
-}
-
-function SummaryCard({ title, value, className }: { title: string; value: string; className?: string }) {
-  return (
-    <Card>
-      <CardContent className="flex items-center justify-between py-4 sm:flex-col sm:justify-center sm:text-center">
-        <p className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">{title}</p>
-        <p className={cn('text-lg font-bold sm:mt-1', className)}>{value}</p>
-      </CardContent>
-    </Card>
-  )
 }
 
 export function ReportsPage() {
