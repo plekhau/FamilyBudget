@@ -9,7 +9,8 @@ import { cn } from '@/lib/utils'
 import { formatMoney } from '@/lib/money'
 import { currentMonth, stepMonth, formatMonth, currentWeekStart, stepWeek, formatWeekRange } from '@/lib/dates'
 import { spaceLocale } from '@/lib/locale'
-import { useCategories, useReport, type ReportPeriodType, type ReportRow } from '@/hooks/useBudget'
+import { useCategories, useReport, type ReportPeriodType } from '@/hooks/useBudget'
+import { splitReportRows } from './reportRows'
 import { useSelectedSpace } from './useSelectedSpace'
 import { NoSpaceState } from './NoSpaceState'
 
@@ -91,14 +92,7 @@ export function ReportsPage() {
   if (!space) return <NoSpaceState />
 
   const locale = spaceLocale(space)
-  const incomeCategoryIds = new Set(categories.filter((c) => c.is_income).map((c) => c.id))
-  const expenseRows: ReportRow[] = rows
-    .filter((r) => !incomeCategoryIds.has(r.category_id))
-    .sort((a, b) => Number(b.total) - Number(a.total))
-  const incomeRows: ReportRow[] = rows.filter((r) => incomeCategoryIds.has(r.category_id))
-  const expenseTotal = expenseRows.reduce((sum, r) => sum + Number(r.total), 0)
-  const incomeTotal = incomeRows.reduce((sum, r) => sum + Number(r.total), 0)
-  const net = incomeTotal - expenseTotal
+  const { incomeRows, expenseRows, incomeTotal, expenseTotal, net } = splitReportRows(rows, categories)
 
   const grouped = expenseRows.length > MAX_SLICES
   const allSlices = expenseRows.map((r) => ({ name: `${r.category_icon} ${r.category_name}`, value: Number(r.total) }))
