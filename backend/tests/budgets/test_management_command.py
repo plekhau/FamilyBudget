@@ -55,6 +55,20 @@ def test_command_advances_next_due_date(space_with_recurring):
 
 
 @pytest.mark.django_db
+def test_command_catches_up_missed_occurrences(space_with_recurring):
+    """A single command run generates one transaction per missed period and advances next_due_date past today."""
+    rt, user = space_with_recurring
+    rt.next_due_date = date.today() - relativedelta(months=3)
+    rt.save()
+    call_command("generate_recurring_transactions")
+    assert Transaction.objects.count() == 4
+    dates = sorted(Transaction.objects.values_list("date", flat=True))
+    assert dates == [date.today() - relativedelta(months=offset) for offset in (3, 2, 1, 0)]
+    rt.refresh_from_db()
+    assert rt.next_due_date == date.today() + relativedelta(months=1)
+
+
+@pytest.mark.django_db
 def test_command_skips_future_due_dates(space_with_recurring):
     """The management command does not generate transactions for recurring entries whose due date is in the future."""
     rt, user = space_with_recurring

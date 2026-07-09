@@ -10,6 +10,7 @@ from apps.spaces.models import Space, SpaceMembership
 from . import reports as report_queries
 from .models import Category, RecurringTransaction, Transaction
 from .serializers import CategorySerializer, RecurringTransactionSerializer, TransactionSerializer
+from .services import generate_due_transactions
 
 
 def get_space_for_user(space_id, user):
@@ -124,7 +125,8 @@ class RecurringTransactionListCreateView(generics.ListCreateAPIView):
         if not space_id:
             raise ValidationError({"space_id": "This field is required."})
         space = get_space_for_user(space_id, self.request.user)
-        serializer.save(space=space)
+        recurring = serializer.save(space=space)
+        generate_due_transactions(recurring, paid_by=self.request.user)
 
 
 class RecurringTransactionDetailView(generics.RetrieveUpdateDestroyAPIView):

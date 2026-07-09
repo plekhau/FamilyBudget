@@ -10,16 +10,17 @@ import { useSpaceStore } from '@/store/spaceStore'
 
 const BASE = 'http://localhost:8000'
 
-function renderPage() {
+function renderPage(
+  client = new QueryClient({
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+  })
+) {
   useAuthStore.setState({
     user: { id: 1, email: 'test@example.com', display_name: 'Test User' },
     accessToken: 'test-access-token',
     refreshToken: 'test-refresh-token',
   })
   useSpaceStore.setState({ selectedSpaceId: 1 })
-  const client = new QueryClient({
-    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
-  })
   return render(
     <QueryClientProvider client={client}>
       <MemoryRouter>
@@ -76,6 +77,28 @@ describe('RecurringPage', () => {
     await waitFor(() => expect(posted.description).toBe('Netflix'))
     expect(posted.next_due_date).toBe(posted.start_date)
     expect(posted.space_id).toBe(1)
+  })
+
+  it('refreshes transactions after creating a recurring entry', async () => {
+    /** Creating a recurring entry invalidates transactions and report queries so backend-generated transactions appear immediately. */
+    server.use(
+      http.post(`${BASE}/api/budgets/recurring-transactions/`, async ({ request }) => {
+        const body = (await request.json()) as Record<string, unknown>
+        return HttpResponse.json({ id: 99, ...body }, { status: 201 })
+      })
+    )
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+    })
+    const invalidateSpy = vi.spyOn(client, 'invalidateQueries')
+    renderPage(client)
+    await userEvent.click(await screen.findByRole('button', { name: /add recurring/i }))
+    await userEvent.type(screen.getByLabelText(/amount/i), '15.99')
+    await userEvent.type(screen.getByLabelText(/description/i), 'Netflix')
+    await userEvent.click(screen.getByRole('button', { name: /^save$/i }))
+    await waitFor(() => expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['transactions', 1] }))
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['report', 1] })
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['recurring', 1] })
   })
 
   it('opens the edit dialog from a row and deletes with confirmation', async () => {

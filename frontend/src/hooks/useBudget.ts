@@ -160,7 +160,8 @@ export interface RecurringPayload {
 }
 
 export function useCreateRecurring(spaceId: number) {
-  const invalidate = useInvalidateBudget(spaceId, ['recurring'])
+  // Creating a recurring entry can immediately materialize due transactions on the backend
+  const invalidate = useInvalidateBudget(spaceId, ['recurring', 'transactions', 'report'])
   return useMutation({
     mutationFn: (data: RecurringPayload) =>
       api
