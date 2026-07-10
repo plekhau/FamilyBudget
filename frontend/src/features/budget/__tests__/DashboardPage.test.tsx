@@ -98,4 +98,46 @@ describe('DashboardPage', () => {
     renderPage()
     expect(await screen.findByText(/no expenses this period/i)).toBeInTheDocument()
   })
+
+  it('lists active recurring entries sorted by next due date, capped at 5', async () => {
+    /** Seven recurring entries are mocked (one inactive); the 5 soonest active ones render in due-date order. */
+    const recurringEntry = (id: number, description: string, next_due_date: string, is_active = true) => ({
+      id,
+      space: 1,
+      category: 1,
+      amount: '10.00',
+      description,
+      frequency: 'monthly',
+      start_date: '2026-01-01',
+      next_due_date,
+      is_active,
+    })
+    server.use(
+      http.get(`${BASE}/api/budgets/recurring-transactions/`, () =>
+        HttpResponse.json([
+          recurringEntry(1, 'Rent', '2026-08-01'),
+          recurringEntry(2, 'Netflix', '2026-07-15'),
+          recurringEntry(3, 'Gym', '2026-07-20'),
+          recurringEntry(4, 'Cancelled Box', '2026-07-10', false),
+          recurringEntry(5, 'Insurance', '2026-09-01'),
+          recurringEntry(6, 'Spotify', '2026-07-12'),
+          recurringEntry(7, 'Domain', '2026-12-01'),
+        ])
+      )
+    )
+    renderPage()
+    const rows = await screen.findAllByTestId('upcoming-row')
+    expect(rows).toHaveLength(5)
+    expect(rows[0]).toHaveTextContent('Spotify')
+    expect(rows[1]).toHaveTextContent('Netflix')
+    expect(screen.queryByText('Cancelled Box')).not.toBeInTheDocument()
+    expect(screen.queryByText('Domain')).not.toBeInTheDocument()
+  })
+
+  it('shows an empty message when there are no active recurring entries', async () => {
+    /** With an empty recurring list, the upcoming card shows its empty state. */
+    server.use(http.get(`${BASE}/api/budgets/recurring-transactions/`, () => HttpResponse.json([])))
+    renderPage()
+    expect(await screen.findByText(/no active recurring payments/i)).toBeInTheDocument()
+  })
 })

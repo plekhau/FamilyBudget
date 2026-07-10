@@ -13,12 +13,7 @@ import { useCategories, useRecurring, useUpdateRecurring, type RecurringTransact
 import { useSelectedSpace } from './useSelectedSpace'
 import { NoSpaceState } from './NoSpaceState'
 import { RecurringDialog } from './RecurringDialog'
-
-const FREQUENCY_LABELS: Record<RecurringTransaction['frequency'], string> = {
-  weekly: 'Weekly',
-  monthly: 'Monthly',
-  yearly: 'Yearly',
-}
+import { FREQUENCY_LABELS } from './frequency'
 
 export function RecurringPage() {
   const { space, isLoading: spaceLoading } = useSelectedSpace()

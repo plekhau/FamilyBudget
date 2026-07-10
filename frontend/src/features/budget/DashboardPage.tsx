@@ -4,17 +4,19 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { formatMoney } from '@/lib/money'
-import { currentMonth, formatMonth } from '@/lib/dates'
+import { currentMonth, formatMonth, formatDayHeading } from '@/lib/dates'
 import { spaceLocale } from '@/lib/locale'
-import { useCategories, useReport, type ReportRow } from '@/hooks/useBudget'
+import { useCategories, useReport, useRecurring, type ReportRow, type RecurringTransaction } from '@/hooks/useBudget'
 import { splitReportRows } from './reportRows'
 import { SummaryCard } from './SummaryCard'
 import { useSelectedSpace } from './useSelectedSpace'
 import { NoSpaceState } from './NoSpaceState'
+import { FREQUENCY_LABELS } from './frequency'
 
 type DashboardPeriod = 'month' | 'year'
 
 const TOP_CATEGORIES_LIMIT = 5
+const UPCOMING_LIMIT = 5
 
 function TopCategories({
   expenseRows,
@@ -67,12 +69,57 @@ function TopCategories({
   )
 }
 
+function UpcomingRecurring({
+  recurring,
+  currency,
+  locale,
+}: {
+  recurring: RecurringTransaction[]
+  currency: string
+  locale: string
+}) {
+  const upcoming = recurring
+    .filter((r) => r.is_active)
+    .sort((a, b) => a.next_due_date.localeCompare(b.next_due_date))
+    .slice(0, UPCOMING_LIMIT)
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+          Upcoming recurring
+        </CardTitle>
+        <Link to="/budget/recurring" className="text-xs font-medium text-primary hover:underline">
+          Manage →
+        </Link>
+      </CardHeader>
+      <CardContent className="space-y-2">
+        {upcoming.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No active recurring payments.</p>
+        ) : (
+          upcoming.map((r) => (
+            <div key={r.id} data-testid="upcoming-row" className="flex items-center justify-between py-1 text-sm">
+              <span className="flex min-w-0 flex-col">
+                <span className="truncate">{r.description}</span>
+                <span className="text-xs text-muted-foreground">
+                  {formatDayHeading(r.next_due_date, locale)} · {FREQUENCY_LABELS[r.frequency]}
+                </span>
+              </span>
+              <span className="font-semibold">{formatMoney(r.amount, currency, locale)}</span>
+            </div>
+          ))
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
 export function DashboardPage() {
   const { space, isLoading: spaceLoading } = useSelectedSpace()
   const [period, setPeriod] = useState<DashboardPeriod>('month')
   const periodValue = period === 'month' ? currentMonth() : String(new Date().getFullYear())
   const { data: categories = [] } = useCategories(space?.id ?? null)
   const { data: reportRows = [], isLoading: reportLoading } = useReport(space?.id ?? null, period, periodValue)
+  const { data: recurring = [] } = useRecurring(space?.id ?? null)
 
   if (spaceLoading) {
     return (
@@ -129,6 +176,7 @@ export function DashboardPage() {
               currency={space.currency}
               locale={locale}
             />
+            <UpcomingRecurring recurring={recurring} currency={space.currency} locale={locale} />
           </div>
         </>
       )}
