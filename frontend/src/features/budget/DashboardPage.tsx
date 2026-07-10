@@ -185,10 +185,13 @@ export function DashboardPage() {
   const { space, isLoading: spaceLoading } = useSelectedSpace()
   const [period, setPeriod] = useState<DashboardPeriod>('month')
   const periodValue = period === 'month' ? currentMonth() : String(new Date().getFullYear())
-  const { data: categories = [] } = useCategories(space?.id ?? null)
+  const { data: categories = [], isLoading: categoriesLoading } = useCategories(space?.id ?? null)
   const { data: reportRows = [], isLoading: reportLoading } = useReport(space?.id ?? null, period, periodValue)
-  const { data: recurring = [] } = useRecurring(space?.id ?? null)
-  const { data: transactions = [] } = useTransactions(space?.id ?? null, { month: currentMonth() })
+  const { data: recurring = [], isLoading: recurringLoading } = useRecurring(space?.id ?? null)
+  const { data: transactions = [], isLoading: transactionsLoading } = useTransactions(space?.id ?? null, {
+    month: currentMonth(),
+  })
+  const widgetsLoading = reportLoading || categoriesLoading || recurringLoading || transactionsLoading
 
   if (spaceLoading) {
     return (
@@ -221,7 +224,7 @@ export function DashboardPage() {
         </Tabs>
       </div>
 
-      {reportLoading ? (
+      {widgetsLoading ? (
         <Skeleton className="h-64 w-full rounded-xl" />
       ) : (
         <>

@@ -182,4 +182,19 @@ describe('DashboardPage', () => {
     renderPage()
     expect(await screen.findByText(/no transactions this month yet/i)).toBeInTheDocument()
   })
+
+  it('shows a negative net with a minus sign and destructive styling', async () => {
+    /** Groceries (expense) 3000.00 exceeds Salary (income) 1000.00, so net is -$2,000.00 in the destructive color. */
+    server.use(
+      http.get(`${BASE}/api/budgets/reports/:reportType/`, () =>
+        HttpResponse.json([
+          { category_id: 1, category_name: 'Groceries', category_icon: '🛒', total: '3000.00' },
+          { category_id: 3, category_name: 'Salary', category_icon: '💰', total: '1000.00' },
+        ])
+      )
+    )
+    renderPage()
+    const netTile = await screen.findByText('-$2,000.00')
+    expect(netTile).toHaveClass('text-destructive')
+  })
 })
