@@ -15,10 +15,10 @@ Current state of the project at a glance. **Update this file whenever a phase co
 | GitHub Actions CI — backend + frontend test/lint jobs, path-filtered | [2026-06-16 CI design](superpowers/specs/2026-06-16-github-actions-ci-design.md) | 2026-06 |
 | Budget section + per-space currency — Transactions, Categories, Recurring, Reports pages; `Space.currency`, `PATCH /api/spaces/{id}/`, category-delete 409 | [2026-07-02 budget design](superpowers/specs/2026-07-02-budget-frontend-design.md) | 2026-07 |
 | Budget section UX polish — totals, chart legend, locale setting, comma amounts, Today button | [2026-07-03 budget UX improvements design](superpowers/specs/2026-07-03-budget-ux-improvements-design.md) | 2026-07 |
+| Dashboard page — summary tiles, top categories, upcoming recurring, recent transactions | [2026-07-09 dashboard design](superpowers/specs/2026-07-09-dashboard-page-design.md) | 2026-07 |
 
 ## Next up (no spec yet)
 
-- **Dashboard page** — the rail icon exists but points at a `ComingSoon` stub. Likely wants report widgets + recent transactions.
 - **Playwright e2e tests** — `tests/` is empty; CLAUDE.md marks it planned. CI job for it deferred in the CI spec.
 
 ## Backlog (deferred by earlier specs, in no order)
