@@ -140,4 +140,46 @@ describe('DashboardPage', () => {
     renderPage()
     expect(await screen.findByText(/no active recurring payments/i)).toBeInTheDocument()
   })
+
+  it('lists recent transactions capped at 6 with income marked green-plus', async () => {
+    /** Eight transactions are mocked; only the first 6 render (server order), Salary shows a + prefix. */
+    const tx = (id: number, category: number, amount: string, date: string) => ({
+      id,
+      space: 1,
+      category,
+      amount,
+      date,
+      paid_by: 1,
+      notes: id === 1 ? 'weekly shop' : '',
+      created_by: 1,
+      created_at: `${date}T10:00:00Z`,
+    })
+    server.use(
+      http.get(`${BASE}/api/budgets/transactions/`, () =>
+        HttpResponse.json([
+          tx(1, 1, '84.20', '2026-07-08'),
+          tx(2, 3, '2400.00', '2026-07-07'),
+          tx(3, 2, '32.50', '2026-07-06'),
+          tx(4, 1, '15.00', '2026-07-05'),
+          tx(5, 1, '22.10', '2026-07-04'),
+          tx(6, 2, '18.75', '2026-07-03'),
+          tx(7, 1, '9.99', '2026-07-02'),
+          tx(8, 1, '5.00', '2026-07-01'),
+        ])
+      )
+    )
+    renderPage()
+    const rows = await screen.findAllByTestId('recent-row')
+    expect(rows).toHaveLength(6)
+    expect(rows[0]).toHaveTextContent('🛒 Groceries')
+    expect(rows[0]).toHaveTextContent('weekly shop')
+    expect(rows[1]).toHaveTextContent('+$2,400.00')
+  })
+
+  it('shows an empty message when the month has no transactions', async () => {
+    /** With an empty transactions list, the recent card shows its empty state linking to the transactions page. */
+    server.use(http.get(`${BASE}/api/budgets/transactions/`, () => HttpResponse.json([])))
+    renderPage()
+    expect(await screen.findByText(/no transactions this month yet/i)).toBeInTheDocument()
+  })
 })

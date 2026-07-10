@@ -6,7 +6,17 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { formatMoney } from '@/lib/money'
 import { currentMonth, formatMonth, formatDayHeading } from '@/lib/dates'
 import { spaceLocale } from '@/lib/locale'
-import { useCategories, useReport, useRecurring, type ReportRow, type RecurringTransaction } from '@/hooks/useBudget'
+import { cn } from '@/lib/utils'
+import {
+  useCategories,
+  useReport,
+  useRecurring,
+  useTransactions,
+  type ReportRow,
+  type RecurringTransaction,
+  type Category,
+  type Transaction,
+} from '@/hooks/useBudget'
 import { splitReportRows } from './reportRows'
 import { SummaryCard } from './SummaryCard'
 import { useSelectedSpace } from './useSelectedSpace'
@@ -17,6 +27,7 @@ type DashboardPeriod = 'month' | 'year'
 
 const TOP_CATEGORIES_LIMIT = 5
 const UPCOMING_LIMIT = 5
+const RECENT_LIMIT = 6
 
 function TopCategories({
   expenseRows,
@@ -113,6 +124,63 @@ function UpcomingRecurring({
   )
 }
 
+function RecentTransactions({
+  transactions,
+  categories,
+  currency,
+  locale,
+}: {
+  transactions: Transaction[]
+  categories: Category[]
+  currency: string
+  locale: string
+}) {
+  const categoryById = new Map(categories.map((c) => [c.id, c]))
+  const recent = transactions.slice(0, RECENT_LIMIT)
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+          Recent transactions
+        </CardTitle>
+        <Link to="/budget/transactions" className="text-xs font-medium text-primary hover:underline">
+          View all →
+        </Link>
+      </CardHeader>
+      <CardContent className="space-y-2">
+        {recent.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            No transactions this month yet.{' '}
+            <Link to="/budget/transactions" className="text-primary hover:underline">
+              Add one
+            </Link>
+          </p>
+        ) : (
+          recent.map((t) => {
+            const category = categoryById.get(t.category)
+            const isIncome = category?.is_income ?? false
+            return (
+              <div key={t.id} data-testid="recent-row" className="flex items-center justify-between py-1 text-sm">
+                <span className="flex min-w-0 flex-col">
+                  <span className="truncate">{category ? `${category.icon} ${category.name}` : '—'}</span>
+                  <span className="truncate text-xs text-muted-foreground">
+                    {formatDayHeading(t.date, locale)}
+                    {t.notes ? ` · ${t.notes}` : ''}
+                  </span>
+                </span>
+                <span className={cn('font-semibold', isIncome && 'text-green-600 dark:text-green-400')}>
+                  {isIncome ? '+' : ''}
+                  {formatMoney(t.amount, currency, locale)}
+                </span>
+              </div>
+            )
+          })
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
 export function DashboardPage() {
   const { space, isLoading: spaceLoading } = useSelectedSpace()
   const [period, setPeriod] = useState<DashboardPeriod>('month')
@@ -120,6 +188,7 @@ export function DashboardPage() {
   const { data: categories = [] } = useCategories(space?.id ?? null)
   const { data: reportRows = [], isLoading: reportLoading } = useReport(space?.id ?? null, period, periodValue)
   const { data: recurring = [] } = useRecurring(space?.id ?? null)
+  const { data: transactions = [] } = useTransactions(space?.id ?? null, { month: currentMonth() })
 
   if (spaceLoading) {
     return (
@@ -178,6 +247,12 @@ export function DashboardPage() {
             />
             <UpcomingRecurring recurring={recurring} currency={space.currency} locale={locale} />
           </div>
+          <RecentTransactions
+            transactions={transactions}
+            categories={categories}
+            currency={space.currency}
+            locale={locale}
+          />
         </>
       )}
     </div>
