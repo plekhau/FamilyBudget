@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form'
 import { standardSchemaResolver as zodResolver } from '@hookform/resolvers/standard-schema'
 import { z } from 'zod'
-import { Link } from 'react-router'
+import { Link, useLocation } from 'react-router'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -28,6 +28,8 @@ export function RegisterPage() {
     formState: { errors },
   } = useForm<FormData>({ resolver: zodResolver(schema) })
   const registerMutation = useRegister()
+  const { search } = useLocation()
+  const loginTo = `/login${search}`
 
   const onSubmit = ({ display_name, email, password }: FormData) => {
     registerMutation.mutate({ display_name, email, password })
@@ -44,22 +46,40 @@ export function RegisterPage() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
             <div className="space-y-2">
               <Label htmlFor="display_name">Display Name</Label>
-              <Input id="display_name" placeholder="Alex Smith" {...register('display_name')} />
+              <Input id="display_name" autoComplete="name" placeholder="Alex Smith" {...register('display_name')} />
               {errors.display_name && <p className="text-sm text-destructive">{errors.display_name.message}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="you@example.com" {...register('email')} />
+              <Input
+                id="email"
+                type="email"
+                autoComplete="username"
+                placeholder="you@example.com"
+                {...register('email')}
+              />
               {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" placeholder="••••••••" {...register('password')} />
+              <Input
+                id="password"
+                type="password"
+                autoComplete="new-password"
+                placeholder="••••••••"
+                {...register('password')}
+              />
               {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="confirm_password">Confirm Password</Label>
-              <Input id="confirm_password" type="password" placeholder="••••••••" {...register('confirm_password')} />
+              <Input
+                id="confirm_password"
+                type="password"
+                autoComplete="new-password"
+                placeholder="••••••••"
+                {...register('confirm_password')}
+              />
               {errors.confirm_password && <p className="text-sm text-destructive">{errors.confirm_password.message}</p>}
             </div>
             {registerMutation.isError && (
@@ -71,7 +91,7 @@ export function RegisterPage() {
           </form>
           <p className="mt-4 text-center text-sm text-muted-foreground">
             Already have an account?{' '}
-            <Link to="/login" className="text-primary hover:underline">
+            <Link to={loginTo} className="text-primary hover:underline">
               Sign in
             </Link>
           </p>

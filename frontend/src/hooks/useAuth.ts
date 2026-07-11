@@ -1,7 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate, useLocation } from 'react-router'
+import { toast } from 'sonner'
 import { api } from '@/lib/api'
 import { useAuthStore, type AuthUser } from '@/store/authStore'
+
+// Only allow same-origin relative paths as a post-auth redirect target.
+function safeRedirect(search: string): string {
+  const raw = new URLSearchParams(search).get('redirect') ?? '/'
+  return raw.startsWith('/') && !raw.startsWith('//') ? raw : '/'
+}
 
 interface LoginData {
   email: string
@@ -26,21 +33,22 @@ export function useLogin() {
       setTokens(tokens.access, tokens.refresh)
       const { data: user } = await api.get<AuthUser>('/api/auth/me/')
       setUser(user)
-      const params = new URLSearchParams(location.search)
-      const raw = params.get('redirect') ?? '/'
-      const redirect = raw.startsWith('/') && !raw.startsWith('//') ? raw : '/'
-      navigate(redirect, { replace: true })
+      navigate(safeRedirect(location.search), { replace: true })
     },
   })
 }
 
 export function useRegister() {
   const navigate = useNavigate()
+  const location = useLocation()
 
   return useMutation({
     mutationFn: (data: RegisterData) => api.post('/api/auth/register/', data).then((r) => r.data),
     onSuccess: () => {
-      navigate('/login')
+      // Carry any invite redirect through to the login page so the new user
+      // lands back on the invite (or wherever they came from) after signing in.
+      toast.success('Account created — please sign in.')
+      navigate(`/login${location.search}`, { replace: true })
     },
   })
 }

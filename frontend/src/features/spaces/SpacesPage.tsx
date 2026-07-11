@@ -46,7 +46,7 @@ function MemberRow({ member, currentUserId }: { member: SpaceMember; currentUser
       <div className="flex-1">
         <p className="text-sm font-medium">
           {member.user.display_name}
-          {member.user.id === currentUserId && <span className="ml-1 text-muted-foreground">(you)</span>}
+          {member.user.id === currentUserId && <span className="text-muted-foreground"> (you)</span>}
         </p>
         <p className="text-xs text-muted-foreground">{member.user.email}</p>
       </div>
@@ -111,14 +111,17 @@ function InviteCard({ spaceId }: { spaceId: number }) {
 }
 
 function SpaceSettingsCard({ space }: { space: Space }) {
+  const [name, setName] = useState(space.name)
   const [currency, setCurrency] = useState(space.currency)
   const [locale, setLocale] = useState(space.locale)
   const updateSpace = useUpdateSpace()
-  const dirty = currency !== space.currency || locale !== space.locale
+  const trimmedName = name.trim()
+  const dirty = trimmedName !== space.name || currency !== space.currency || locale !== space.locale
+  const canSave = dirty && trimmedName.length > 0
 
   const handleSave = () => {
     updateSpace.mutate(
-      { id: space.id, currency, locale },
+      { id: space.id, name: trimmedName, currency, locale },
       {
         onSuccess: () => toast.success('Space settings saved'),
         onError: () => toast.error('Failed to save space settings. Please try again.'),
@@ -134,6 +137,15 @@ function SpaceSettingsCard({ space }: { space: Space }) {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
+        <div className="space-y-2">
+          <Label htmlFor="settings-name">Name</Label>
+          <Input
+            id="settings-name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="e.g. Home Budget"
+          />
+        </div>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="settings-currency">Currency</Label>
@@ -156,7 +168,7 @@ function SpaceSettingsCard({ space }: { space: Space }) {
             </NativeSelect>
           </div>
         </div>
-        <Button onClick={handleSave} disabled={!dirty || updateSpace.isPending}>
+        <Button onClick={handleSave} disabled={!canSave || updateSpace.isPending}>
           {updateSpace.isPending ? 'Saving…' : 'Save'}
         </Button>
         <p className="text-xs text-muted-foreground">
@@ -317,7 +329,7 @@ export function SpacesPage() {
             </CardContent>
           </Card>
 
-          <InviteCard key={`invite-${selectedSpace.id}`} spaceId={selectedSpace.id} />
+          {isOwnerOrAdmin && <InviteCard key={`invite-${selectedSpace.id}`} spaceId={selectedSpace.id} />}
 
           {isOwnerOrAdmin && <SpaceSettingsCard key={`settings-${selectedSpace.id}`} space={selectedSpace} />}
 

@@ -155,6 +155,16 @@ export const handlers = [
     )
   ),
 
+  http.get(`${BASE}/api/spaces/invites/preview/`, () =>
+    HttpResponse.json({
+      space_name: 'Home Budget',
+      invited_by: 'Alex Smith',
+      status: 'pending',
+      expired: false,
+      valid: true,
+    })
+  ),
+
   http.post(`${BASE}/api/spaces/invites/accept/`, () => HttpResponse.json({ detail: 'Joined space successfully.' })),
 
   http.patch(`${BASE}/api/spaces/:id/`, async ({ request, params }) => {

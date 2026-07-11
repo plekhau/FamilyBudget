@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form'
 import { standardSchemaResolver as zodResolver } from '@hookform/resolvers/standard-schema'
 import { z } from 'zod'
-import { Link } from 'react-router'
+import { Link, useLocation } from 'react-router'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -21,6 +21,8 @@ export function LoginPage() {
     formState: { errors },
   } = useForm<FormData>({ resolver: zodResolver(schema) })
   const login = useLogin()
+  const { search } = useLocation()
+  const registerTo = `/register${search}`
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
@@ -33,12 +35,24 @@ export function LoginPage() {
           <form onSubmit={handleSubmit((d) => login.mutate(d))} className="space-y-5" noValidate>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="you@example.com" {...register('email')} />
+              <Input
+                id="email"
+                type="email"
+                autoComplete="username"
+                placeholder="you@example.com"
+                {...register('email')}
+              />
               {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" placeholder="••••••••" {...register('password')} />
+              <Input
+                id="password"
+                type="password"
+                autoComplete="current-password"
+                placeholder="••••••••"
+                {...register('password')}
+              />
               {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
             </div>
             {login.isError && <p className="text-sm text-destructive">Invalid credentials. Please try again.</p>}
@@ -48,7 +62,7 @@ export function LoginPage() {
           </form>
           <p className="mt-4 text-center text-sm text-muted-foreground">
             Don&apos;t have an account?{' '}
-            <Link to="/register" className="text-primary hover:underline">
+            <Link to={registerTo} className="text-primary hover:underline">
               Register
             </Link>
           </p>

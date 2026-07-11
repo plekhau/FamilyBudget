@@ -48,6 +48,35 @@ describe('SpacesPage', () => {
     expect(screen.getByText('Other User')).toBeInTheDocument()
   })
 
+  it('hides invite, settings, and danger cards from plain members', async () => {
+    server.use(
+      http.get(`${BASE}/api/spaces/`, () =>
+        HttpResponse.json([
+          {
+            id: 1,
+            name: 'Home Budget',
+            currency: 'USD',
+            locale: '',
+            created_at: '2026-01-01T00:00:00Z',
+            members: [
+              {
+                id: 1,
+                user: { id: 1, email: 'test@example.com', display_name: 'Test User' },
+                role: 'member',
+                joined_at: '2026-01-01T00:00:00Z',
+              },
+            ],
+          },
+        ])
+      )
+    )
+    renderSpaces()
+    await screen.findByText('Home Budget')
+    expect(screen.queryByText(/invite someone/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/space settings/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/danger zone/i)).not.toBeInTheDocument()
+  })
+
   it('does not show the space switcher when only one space', async () => {
     renderSpaces()
     await screen.findByText('Home Budget')
@@ -116,7 +145,7 @@ describe('SpacesPage', () => {
               {
                 id: 2,
                 user: { id: 1, email: 'test@example.com', display_name: 'Test User' },
-                role: 'member',
+                role: 'owner',
                 joined_at: '2026-01-01T00:00:00Z',
               },
             ],

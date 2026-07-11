@@ -96,3 +96,52 @@ class TestOpenLinkInvite:
         api_client.force_authenticate(user=outsider)
         response = api_client.post(f"/api/spaces/{space_id}/invites/", {})
         assert response.status_code == 404
+
+    def test_plain_member_cannot_create_invite(self, api_client, space_and_owner):
+        """A member (non-owner/admin) cannot create invites and receives 403."""
+        space_id, owner = space_and_owner
+        invite_response = owner.post(f"/api/spaces/{space_id}/invites/", {})
+        member = make_user("member@example.com")
+        api_client.force_authenticate(user=member)
+        api_client.post("/api/spaces/invites/accept/", {"token": invite_response.data["token"]})
+
+        response = api_client.post(f"/api/spaces/{space_id}/invites/", {})
+        assert response.status_code == 403
+        assert SpaceInvite.objects.filter(space_id=space_id).count() == 1
+
+
+@pytest.mark.django_db
+class TestInvitePreview:
+    def test_preview_returns_space_and_inviter(self, space_and_owner, api_client):
+        """Preview returns the space name, inviter, and a valid flag for a pending invite."""
+        space_id, owner = space_and_owner
+        token = owner.post(f"/api/spaces/{space_id}/invites/", {}).data["token"]
+
+        invitee = make_user("invitee@example.com")
+        api_client.force_authenticate(user=invitee)
+        response = api_client.get("/api/spaces/invites/preview/", {"token": token})
+        assert response.status_code == 200
+        assert response.data["space_name"] == "Test Space"
+        assert response.data["invited_by"]
+        assert response.data["valid"] is True
+        assert response.data["expired"] is False
+
+    def test_preview_marks_revoked_invite_invalid(self, space_and_owner, api_client):
+        """Preview of a revoked invite reports valid=False without erroring."""
+        space_id, owner = space_and_owner
+        invite_response = owner.post(f"/api/spaces/{space_id}/invites/", {})
+        owner.delete(f"/api/spaces/{space_id}/invites/{invite_response.data['id']}/")
+
+        invitee = make_user("preview-late@example.com")
+        api_client.force_authenticate(user=invitee)
+        response = api_client.get("/api/spaces/invites/preview/", {"token": invite_response.data["token"]})
+        assert response.status_code == 200
+        assert response.data["valid"] is False
+
+    def test_preview_unknown_token_returns_404(self, auth_client):
+        """Preview of a non-existent token returns 404."""
+        response = auth_client.get(
+            "/api/spaces/invites/preview/",
+            {"token": "00000000-0000-0000-0000-000000000000"},
+        )
+        assert response.status_code == 404

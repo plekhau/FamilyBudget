@@ -50,14 +50,49 @@ class SpaceInviteCreateView(generics.CreateAPIView):
     def perform_create(self, serializer):
         from django.http import Http404
 
+        from rest_framework.exceptions import PermissionDenied
+
         try:
-            space = Space.objects.get(
-                pk=self.kwargs["space_id"],
-                memberships__user=self.request.user,
+            membership = SpaceMembership.objects.select_related("space").get(
+                space_id=self.kwargs["space_id"],
+                user=self.request.user,
             )
-        except Space.DoesNotExist:
+        except SpaceMembership.DoesNotExist:
             raise Http404
-        serializer.save(space=space, invited_by=self.request.user)
+        # Only owners/admins may invite — consistent with who may revoke invites.
+        if membership.role not in (
+            SpaceMembership.Role.OWNER,
+            SpaceMembership.Role.ADMIN,
+        ):
+            raise PermissionDenied("Only owners and admins can invite members.")
+        serializer.save(space=membership.space, invited_by=self.request.user)
+
+
+class InvitePreviewView(APIView):
+    """Read-only invite context (space + inviter) so an invitee can see what
+    they're joining before accepting. Any authenticated user with the token."""
+
+    def get(self, request):
+        serializer = AcceptInviteSerializer(data=request.query_params)
+        serializer.is_valid(raise_exception=True)
+        token = serializer.validated_data["token"]
+
+        try:
+            invite = SpaceInvite.objects.select_related("space", "invited_by").get(token=token)
+        except SpaceInvite.DoesNotExist:
+            return Response({"detail": "Invalid invite."}, status=status.HTTP_404_NOT_FOUND)
+
+        expired = invite.status == SpaceInvite.Status.EXPIRED or invite.expires_at < timezone.now()
+        valid = invite.status == SpaceInvite.Status.PENDING and not expired
+        return Response(
+            {
+                "space_name": invite.space.name,
+                "invited_by": invite.invited_by.display_name,
+                "status": invite.status,
+                "expired": expired,
+                "valid": valid,
+            }
+        )
 
 
 class AcceptInviteView(APIView):

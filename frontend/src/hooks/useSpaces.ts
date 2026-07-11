@@ -60,6 +60,23 @@ export function useCreateInvite(spaceId: number) {
   })
 }
 
+export interface InvitePreview {
+  space_name: string
+  invited_by: string
+  status: 'pending' | 'accepted' | 'expired' | 'revoked'
+  expired: boolean
+  valid: boolean
+}
+
+export function useInvitePreview(token: string | null) {
+  return useQuery({
+    queryKey: ['invite-preview', token],
+    queryFn: () => api.get<InvitePreview>('/api/spaces/invites/preview/', { params: { token } }).then((r) => r.data),
+    enabled: !!token,
+    retry: false,
+  })
+}
+
 export function useAcceptInvite() {
   const qc = useQueryClient()
   const navigate = useNavigate()
