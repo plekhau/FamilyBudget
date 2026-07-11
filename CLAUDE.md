@@ -137,3 +137,5 @@ All endpoints require JWT authentication. Reports are at `/api/budgets/reports/<
 ### Tests
 
 Tests use `pytest-django` and `factory-boy`. The `conftest.py` in `tests/` provides `api_client` and `auth_client` fixtures. Tests hit a real SQLite database (configured via `local` settings); do not mock the DB.
+
+For a full end-to-end exploratory pass over the live app in a browser (functional flows, design/UX, robustness, data isolation, accessibility), follow [docs/exploratory-testing.md](docs/exploratory-testing.md) — it lists the Playwright MCP setup, the ground rules (fresh test users, don't touch local data, clean up artifacts), and the per-feature checklist.
