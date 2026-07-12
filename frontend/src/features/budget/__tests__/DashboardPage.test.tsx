@@ -173,6 +173,7 @@ describe('DashboardPage', () => {
     expect(rows).toHaveLength(6)
     expect(rows[0]).toHaveTextContent('🛒 Groceries')
     expect(rows[0]).toHaveTextContent('weekly shop')
+    expect(rows[0]).toHaveTextContent('-$84.20')
     expect(rows[1]).toHaveTextContent('+$2,400.00')
   })
 

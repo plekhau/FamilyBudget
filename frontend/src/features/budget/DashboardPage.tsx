@@ -22,6 +22,7 @@ import { SummaryCard } from './SummaryCard'
 import { useSelectedSpace } from './useSelectedSpace'
 import { NoSpaceState } from './NoSpaceState'
 import { FREQUENCY_LABELS } from './frequency'
+import { CategoryLabel } from './CategoryLabel'
 
 type DashboardPeriod = 'month' | 'year'
 
@@ -60,9 +61,7 @@ function TopCategories({
             return (
               <div key={r.category_id} data-testid="top-category-row">
                 <div className="flex items-center justify-between text-sm">
-                  <span>
-                    {r.category_icon} {r.category_name}
-                  </span>
+                  <CategoryLabel icon={r.category_icon} name={r.category_name} />
                   <span className="font-semibold">
                     {formatMoney(r.total, currency, locale)}{' '}
                     <span className="font-normal text-muted-foreground">· {pct}%</span>
@@ -162,14 +161,14 @@ function RecentTransactions({
             return (
               <div key={t.id} data-testid="recent-row" className="flex items-center justify-between py-1 text-sm">
                 <span className="flex min-w-0 flex-col">
-                  <span className="truncate">{category ? `${category.icon} ${category.name}` : '—'}</span>
+                  {category ? <CategoryLabel icon={category.icon} name={category.name} /> : <span>—</span>}
                   <span className="truncate text-xs text-muted-foreground">
                     {formatDayHeading(t.date, locale)}
                     {t.notes ? ` · ${t.notes}` : ''}
                   </span>
                 </span>
                 <span className={cn('font-semibold', isIncome && 'text-green-600 dark:text-green-400')}>
-                  {isIncome ? '+' : ''}
+                  {isIncome ? '+' : '-'}
                   {formatMoney(t.amount, currency, locale)}
                 </span>
               </div>

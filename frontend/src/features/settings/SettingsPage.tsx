@@ -79,7 +79,7 @@ export function SettingsPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" value={email} disabled readOnly />
+              <Input id="email" value={email} disabled readOnly className="bg-muted/50 disabled:opacity-100" />
               <p className="text-xs text-muted-foreground">Email cannot be changed</p>
             </div>
             <Button type="submit" disabled={updateProfile.isPending}>
@@ -126,7 +126,7 @@ export function SettingsPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <Button variant="destructive" onClick={() => logout.mutate()} disabled={logout.isPending}>
+          <Button variant="outline" onClick={() => logout.mutate()} disabled={logout.isPending}>
             {logout.isPending ? 'Signing out…' : 'Sign Out'}
           </Button>
         </CardContent>

@@ -1,13 +1,13 @@
-import { render } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { PrimaryRail } from '../PrimaryRail'
 
-function renderRail() {
+function renderRail(props?: { showLabels?: boolean }) {
   return render(
     <TooltipProvider>
       <MemoryRouter>
-        <PrimaryRail />
+        <PrimaryRail {...props} />
       </MemoryRouter>
     </TooltipProvider>
   )
@@ -35,5 +35,20 @@ describe('PrimaryRail', () => {
     icons.forEach((icon) => {
       expect(icon).toHaveClass('h-6', 'w-6')
     })
+  })
+
+  it('shows visible text labels next to icons when showLabels is set', () => {
+    /** The mobile drawer uses this mode so nav items are not icon-only guesses. */
+    renderRail({ showLabels: true })
+    for (const label of ['Dashboard', 'Budget', 'Spaces', 'Settings']) {
+      expect(screen.getByRole('link', { name: label })).toHaveTextContent(label)
+    }
+  })
+
+  it('keeps the icon-only w-16 rail by default', () => {
+    /** Desktop keeps the slim rail; labels there live in tooltips. */
+    const { container } = renderRail()
+    expect(container.querySelector('nav')).toHaveClass('w-16')
+    expect(screen.getByRole('link', { name: 'Dashboard' })).not.toHaveTextContent('Dashboard')
   })
 })

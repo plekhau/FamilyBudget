@@ -56,6 +56,13 @@ describe('SettingsPage', () => {
     expect(await screen.findByRole('button', { name: /sign out/i })).toBeInTheDocument()
   })
 
+  it('styles sign out as a neutral action, not a destructive one', async () => {
+    /** Signing out is reversible; red is reserved for destructive actions like deleting a space. */
+    renderSettings()
+    const signOut = await screen.findByRole('button', { name: /sign out/i })
+    expect(signOut).not.toHaveClass('bg-destructive')
+  })
+
   it('changes theme when a theme button is clicked', async () => {
     renderSettings()
     await userEvent.click(await screen.findByRole('button', { name: /dark/i }))

@@ -12,6 +12,7 @@ import { useCategories, useTransactions, type Transaction } from '@/hooks/useBud
 import { useSelectedSpace } from './useSelectedSpace'
 import { NoSpaceState } from './NoSpaceState'
 import { TransactionDialog } from './TransactionDialog'
+import { CategoryLabel } from './CategoryLabel'
 
 function groupByDay(transactions: Transaction[]): { date: string; items: Transaction[] }[] {
   const sorted = [...transactions].sort((a, b) => b.date.localeCompare(a.date) || b.id - a.id)
@@ -39,9 +40,13 @@ function DayHeading({ date, items, locale, categoryById, space }: DayHeadingProp
   return (
     <div className="mb-1 flex items-center justify-between text-xs font-semibold tracking-wider text-muted-foreground uppercase">
       <span>{formatDayHeading(date, locale)}</span>
-      <span data-testid={`day-total-${date}`} className={cn(dayNet > 0 && 'text-green-600 dark:text-green-400')}>
-        {dayNet > 0 ? `+${formatMoney(dayNet, space.currency, locale)}` : formatMoney(-dayNet, space.currency, locale)}
-      </span>
+      {items.length > 1 && (
+        <span data-testid={`day-total-${date}`} className={cn(dayNet > 0 && 'text-green-600 dark:text-green-400')}>
+          {dayNet > 0
+            ? `+${formatMoney(dayNet, space.currency, locale)}`
+            : `${dayNet < 0 ? '-' : ''}${formatMoney(-dayNet, space.currency, locale)}`}
+        </span>
+      )}
     </div>
   )
 }
@@ -158,7 +163,7 @@ export function TransactionsPage() {
                 categoryById={categoryById}
                 space={space}
               />
-              <Card>
+              <Card className="py-2">
                 <CardContent className="divide-y divide-border py-0">
                   {group.items.map((t) => {
                     const category = categoryById.get(t.category)
@@ -172,7 +177,11 @@ export function TransactionsPage() {
                       >
                         <div className="flex-1">
                           <p className="text-sm font-medium">
-                            {category ? `${category.icon} ${category.name}` : 'Unknown category'}
+                            {category ? (
+                              <CategoryLabel icon={category.icon} name={category.name} />
+                            ) : (
+                              'Unknown category'
+                            )}
                           </p>
                           <p className="text-xs text-muted-foreground">
                             <span>{memberById.get(t.paid_by) ?? 'Unknown'}</span>
@@ -182,7 +191,7 @@ export function TransactionsPage() {
                         <span className={cn('text-sm font-semibold', isIncome && 'text-green-600 dark:text-green-400')}>
                           {isIncome
                             ? `+${formatMoney(t.amount, space.currency, locale)}`
-                            : formatMoney(t.amount, space.currency, locale)}
+                            : `-${formatMoney(t.amount, space.currency, locale)}`}
                         </span>
                       </button>
                     )

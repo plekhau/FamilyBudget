@@ -39,6 +39,12 @@ export function RegisterPage() {
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
+          <div
+            aria-hidden="true"
+            className="mx-auto mb-2 flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-lg font-bold text-primary-foreground"
+          >
+            F
+          </div>
           <CardTitle className="text-2xl">FamilyBudget</CardTitle>
           <CardDescription>Create your account</CardDescription>
         </CardHeader>

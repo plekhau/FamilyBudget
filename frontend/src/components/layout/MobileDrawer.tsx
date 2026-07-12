@@ -23,9 +23,9 @@ export function MobileDrawer({ open, onClose }: Props) {
   return (
     <>
       <div className="fixed inset-0 z-40 bg-black/50" onClick={onClose} aria-hidden="true" />
-      <div className="fixed inset-y-0 left-0 z-50 flex border-r border-border bg-background shadow-lg">
-        <PrimaryRail />
-        <ContextPanel />
+      <div className="fixed inset-y-0 left-0 z-50 flex w-64 flex-col overflow-y-auto border-r border-border bg-card shadow-lg">
+        <PrimaryRail showLabels className="w-full border-r-0" />
+        <ContextPanel className="w-full border-t border-r-0" />
         <button
           className="absolute top-3 right-3 text-muted-foreground hover:text-foreground"
           onClick={onClose}

@@ -14,6 +14,7 @@ import { useSelectedSpace } from './useSelectedSpace'
 import { NoSpaceState } from './NoSpaceState'
 import { RecurringDialog } from './RecurringDialog'
 import { FREQUENCY_LABELS } from './frequency'
+import { CategoryLabel } from './CategoryLabel'
 
 export function RecurringPage() {
   const { space, isLoading: spaceLoading } = useSelectedSpace()
@@ -73,7 +74,7 @@ export function RecurringPage() {
                 <div key={item.id} className={cn('flex items-center gap-3 py-2.5', !item.is_active && 'opacity-50')}>
                   <button type="button" className="flex-1 text-left" onClick={() => setEditing(item)}>
                     <p className="text-sm font-medium">
-                      {category?.icon} {item.description}
+                      <CategoryLabel icon={category?.icon} name={item.description} />
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {FREQUENCY_LABELS[item.frequency]} ·{' '}

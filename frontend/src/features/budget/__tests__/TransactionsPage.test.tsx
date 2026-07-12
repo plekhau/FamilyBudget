@@ -8,6 +8,7 @@ import { mockTransactions } from '@/mocks/handlers'
 import { TransactionsPage } from '../TransactionsPage'
 import { useAuthStore } from '@/store/authStore'
 import { useSpaceStore } from '@/store/spaceStore'
+import { findCategoryLabel } from '@/test-utils'
 
 const BASE = 'http://localhost:8000'
 
@@ -39,7 +40,7 @@ describe('TransactionsPage', () => {
   it('renders transactions grouped by day with payer names', async () => {
     /** Rows show category icon+name, payer display name from space members, day headings. */
     renderPage()
-    expect(await screen.findByText(/🛒 Groceries/)).toBeInTheDocument()
+    expect(await findCategoryLabel('🛒 Groceries')).toBeInTheDocument()
     expect(screen.getByText(/Thu, May 14/)).toBeInTheDocument()
     expect(screen.getByText(/Tue, May 12/)).toBeInTheDocument()
     expect(screen.getAllByText('Test User').length).toBeGreaterThan(0)
@@ -49,11 +50,18 @@ describe('TransactionsPage', () => {
   it('shows income green with a plus and the space currency symbol', async () => {
     /** The Salary row renders +$2,400.00 with the income style class. */
     renderPage()
-    const incomeRow = await screen.findByText(/💰 Salary/)
+    const incomeRow = await findCategoryLabel('💰 Salary')
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const amountSpan = within(incomeRow.closest('button')!).getByText('+$2,400.00')
     expect(amountSpan).toHaveClass('text-green-600')
-    expect(screen.getByText('$84.20')).toBeInTheDocument()
+  })
+
+  it('shows expense amounts with a minus sign', async () => {
+    /** Expense rows are signed (-$84.20) so income and spending scan apart. */
+    renderPage()
+    await findCategoryLabel('🛒 Groceries')
+    expect(screen.getByText('-$84.20')).toBeInTheDocument()
+    expect(screen.getByText('-$32.50')).toBeInTheDocument()
   })
 
   it('refetches when stepping the month', async () => {
@@ -90,7 +98,7 @@ describe('TransactionsPage', () => {
   it('opens the add dialog from the header button', async () => {
     /** "+ Add" opens TransactionDialog in add mode. */
     renderPage()
-    await screen.findByText(/🛒 Groceries/)
+    await findCategoryLabel('🛒 Groceries')
     await userEvent.click(screen.getByRole('button', { name: /add/i }))
     expect(await screen.findByText('Add transaction')).toBeInTheDocument()
   })
@@ -98,7 +106,7 @@ describe('TransactionsPage', () => {
   it('opens the edit dialog when a row is clicked', async () => {
     /** Clicking a transaction row opens the dialog pre-filled. */
     renderPage()
-    await userEvent.click(await screen.findByText(/🍽️ Dining Out/))
+    await userEvent.click(await findCategoryLabel('🍽️ Dining Out'))
     expect(await screen.findByText('Edit transaction')).toBeInTheDocument()
     expect(screen.getByLabelText(/amount/i)).toHaveValue('32.50')
   })
@@ -141,21 +149,19 @@ describe('TransactionsPage', () => {
   it('shows the month summary strip with income, spent and net', async () => {
     /** The strip totals the fetched transactions: income green, net signed. */
     renderPage()
-    await screen.findByText(/🛒 Groceries/)
+    await findCategoryLabel('🛒 Groceries')
     const strip = screen.getByTestId('month-summary')
     expect(strip).toHaveTextContent('Income +$2,400.00')
     expect(strip).toHaveTextContent('Spent $116.70')
     expect(strip).toHaveTextContent('Net +$2,283.30')
   })
 
-  it('shows a subtotal in each day heading', async () => {
-    /** Expense days show the plain spent amount; income days show green +amount. */
+  it('shows a signed subtotal only on days with several transactions', async () => {
+    /** Multi-item days show a signed net; single-item days omit the subtotal (it would repeat the row amount). */
     renderPage()
     const expenseDay = await screen.findByTestId('day-total-2026-05-14')
-    expect(expenseDay).toHaveTextContent('$116.70')
-    const incomeDay = screen.getByTestId('day-total-2026-05-12')
-    expect(incomeDay).toHaveTextContent('+$2,400.00')
-    expect(incomeDay).toHaveClass('text-green-600')
+    expect(expenseDay).toHaveTextContent('-$116.70')
+    expect(screen.queryByTestId('day-total-2026-05-12')).not.toBeInTheDocument()
   })
 
   it('hides the summary strip when the month is empty', async () => {
@@ -169,7 +175,7 @@ describe('TransactionsPage', () => {
   it('shows a Today button only when off the current month', async () => {
     /** Hidden on the current month; appears after stepping back; clicking returns to now. */
     renderPage()
-    await screen.findByText(/🛒 Groceries/)
+    await findCategoryLabel('🛒 Groceries')
     expect(screen.queryByRole('button', { name: /today/i })).not.toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: /previous month/i }))
     await userEvent.click(await screen.findByRole('button', { name: /today/i }))

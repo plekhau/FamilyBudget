@@ -19,14 +19,14 @@ function useActiveSection(): string | null {
   return null
 }
 
-export function ContextPanel() {
+export function ContextPanel({ className }: { className?: string }) {
   const activeSection = useActiveSection()
   const items = activeSection ? SECTION_ITEMS[activeSection] : null
 
   if (!items || items.length === 0) return null
 
   return (
-    <nav className="flex w-44 flex-col border-r border-border bg-card px-2 py-3">
+    <nav className={cn('flex w-44 flex-col border-r border-border bg-card px-2 py-3', className)}>
       <p className="mb-2 px-2 text-xs font-semibold tracking-wider text-muted-foreground uppercase">{activeSection}</p>
       {items.map(({ label, to }) => (
         <NavLink

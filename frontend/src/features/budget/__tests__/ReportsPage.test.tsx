@@ -8,6 +8,7 @@ import { mockReport } from '@/mocks/handlers'
 import { ReportsPage } from '../ReportsPage'
 import { useAuthStore } from '@/store/authStore'
 import { useSpaceStore } from '@/store/spaceStore'
+import { findCategoryLabel } from '@/test-utils'
 
 const BASE = 'http://localhost:8000'
 
@@ -36,6 +37,12 @@ describe('ReportsPage', () => {
     useSpaceStore.setState({ selectedSpaceId: null })
   })
 
+  it('shows a page title like the other budget pages', async () => {
+    /** Every budget page opens with an h1 + subtitle; Reports should match. */
+    renderPage()
+    expect(await screen.findByRole('heading', { level: 1, name: /reports/i })).toBeInTheDocument()
+  })
+
   it('computes income, expenses and net by joining categories', async () => {
     /** Salary (income) 2400 vs Groceries+Dining 116.70 → net +2,283.30. */
     renderPage()
@@ -47,7 +54,7 @@ describe('ReportsPage', () => {
   it('lists expense categories with percentage share', async () => {
     /** Groceries is 84.20 of 116.70 ≈ 72%. */
     renderPage()
-    expect(await screen.findByText(/🛒 Groceries/)).toBeInTheDocument()
+    expect(await findCategoryLabel('🛒 Groceries')).toBeInTheDocument()
     expect(screen.getByText(/72%/)).toBeInTheDocument()
   })
 
@@ -61,7 +68,7 @@ describe('ReportsPage', () => {
       })
     )
     renderPage()
-    await screen.findByText(/🛒 Groceries/)
+    await findCategoryLabel('🛒 Groceries')
     expect(url).toContain('monthly-summary')
   })
 
@@ -75,7 +82,7 @@ describe('ReportsPage', () => {
       })
     )
     renderPage()
-    await screen.findByText(/🛒 Groceries/)
+    await findCategoryLabel('🛒 Groceries')
     await userEvent.click(screen.getByRole('tab', { name: /week/i }))
     await waitFor(() => expect(urls.some((u) => u.includes('weekly-summary'))).toBe(true))
     expect(urls[urls.length - 1]).toMatch(/week=\d{4}-\d{2}-\d{2}/)
@@ -91,7 +98,7 @@ describe('ReportsPage', () => {
   it('shows a Today button only when off the current period', async () => {
     /** Hidden initially; appears after stepping back; clicking resets the period. */
     renderPage()
-    await screen.findByText(/🛒 Groceries/)
+    await findCategoryLabel('🛒 Groceries')
     expect(screen.queryByRole('button', { name: /today/i })).not.toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: /previous period/i }))
     await userEvent.click(await screen.findByRole('button', { name: /today/i }))

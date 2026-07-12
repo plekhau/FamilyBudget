@@ -13,6 +13,7 @@ import { splitReportRows } from './reportRows'
 import { SummaryCard } from './SummaryCard'
 import { useSelectedSpace } from './useSelectedSpace'
 import { NoSpaceState } from './NoSpaceState'
+import { CategoryLabel } from './CategoryLabel'
 
 const CHART_COLORS = [
   '#6366f1',
@@ -96,6 +97,10 @@ export function ReportsPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
+      <div>
+        <h1 className="text-xl font-bold">Reports</h1>
+        <p className="text-sm text-muted-foreground">Where the money goes in {space.name}</p>
+      </div>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Tabs value={type} onValueChange={(v) => setType(v as ReportPeriodType)}>
           <TabsList>
@@ -179,7 +184,7 @@ export function ReportsPage() {
                           className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
                           style={{ backgroundColor: legendColor(i) }}
                         />
-                        {r.category_icon} {r.category_name}
+                        <CategoryLabel icon={r.category_icon} name={r.category_name} />
                       </span>
                       <span className="font-semibold">
                         {formatMoney(r.total, space.currency, locale)}{' '}
@@ -204,9 +209,7 @@ export function ReportsPage() {
               <CardContent className="space-y-1">
                 {incomeRows.map((r) => (
                   <div key={r.category_id} className="flex items-center justify-between py-1 text-sm">
-                    <span>
-                      {r.category_icon} {r.category_name}
-                    </span>
+                    <CategoryLabel icon={r.category_icon} name={r.category_name} />
                     <span className="font-semibold text-green-600 dark:text-green-400">
                       +{formatMoney(r.total, space.currency, locale)}
                     </span>
